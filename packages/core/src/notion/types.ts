@@ -7,6 +7,8 @@ export interface NotionTransactionInput {
   category: "Salary" | "Bonus" | "Other";
   source: "Outlook" | "Gmail" | "Manual";
   notes?: string;
+  transferId?: string;
+  amountLkr?: number;
 }
 
 export interface NotionPageSummary {
@@ -20,4 +22,18 @@ export interface NotionPageSummary {
   source?: string;
   notes?: string;
   transferId?: string;
+  amountLkr?: number;
+}
+
+export interface NotionTransactionUpdate {
+  name?: string;
+  date?: string;
+  amount?: number;
+  currency?: "USD" | "LKR";
+  type?: "Income" | "Expense";
+  category?: "Salary" | "Bonus" | "Other";
+  source?: "Outlook" | "Gmail" | "Manual";
+  notes?: string;
+  transferId?: string;
+  amountLkr?: number;
 }

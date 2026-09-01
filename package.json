@@ -11,6 +11,7 @@
     "build:shared": "npm run build -w @prabu-life-os/shared",
     "build:core": "npm run build -w @prabu-life-os/core",
     "build:mcp": "npm run build -w @prabu-life-os/mcp",
+    "test": "npm run test -w @prabu-life-os/core",
     "start:mcp": "npm run start -w @prabu-life-os/mcp",
     "auth:outlook": "npm run auth:outlook -w @prabu-life-os/mcp"
   },

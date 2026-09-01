@@ -1,16 +1,26 @@
+import { logger } from "@prabu-life-os/shared";
 import { getOutlookGraphClient } from "../outlook/service";
 import {
   getExistingTransferIds,
   createTransactionsBatch,
   queryTransactionsFromNotion,
+  updateTransactionsBatch,
 } from "../notion/client";
 import { parseWiseEmail, getHistoricalFirstPayment } from "./parser";
+import {
+  buildNotionInputFromTransfer,
+  extractTransferIdFromText,
+  mapNotionPageToTransfer,
+  needsNotionRepair,
+} from "./mapper";
 import type {
   WiseTransfer,
   SyncSalaryOptions,
   SyncSalaryResult,
   IncomeSummary,
   MonthlyBreakdown,
+  RepairNotionOptions,
+  RepairNotionResult,
 } from "./types";
 
 export async function fetchSalaryTransfers(
@@ -20,16 +30,13 @@ export async function fetchSalaryTransfers(
   const transfers: WiseTransfer[] = [];
   const seenTransferNumbers = new Set<string>();
 
-  // Include historical first payment (2025-08-04)
   const initialPayment = getHistoricalFirstPayment();
   if (initialPayment.transferNumber) {
     seenTransferNumbers.add(initialPayment.transferNumber);
   }
   transfers.push(initialPayment);
 
-  // Search queries for Wise forwarded emails in Graph API
   const queries = ['"Wise"', '"Transfer sent"', '"Your money\'s been sent"'];
-
   const processedMessageIds = new Set<string>();
 
   for (const query of queries) {
@@ -61,19 +68,18 @@ export async function fetchSalaryTransfers(
         }
 
         url = res["@odata.nextLink"];
-      } catch {
+      } catch (err) {
+        logger.warn(`Outlook search failed for query "${query}": ${(err as Error).message}`);
         break;
       }
     }
   }
 
-  // Filter by since date if specified
   let filtered = transfers;
   if (options.since) {
     filtered = filtered.filter((t) => t.date >= options.since!);
   }
 
-  // Sort chronologically ascending
   filtered.sort((a, b) => a.date.localeCompare(b.date));
 
   if (options.count && options.count > 0) {
@@ -91,7 +97,7 @@ export async function syncSalaryToNotion(
     since: options.since,
   });
 
-  const dryRun = options.dryRun !== false; // Default to true if not explicitly false
+  const dryRun = options.dryRun !== false;
   let existingTransferIds = new Set<string>();
   const errors: string[] = [];
 
@@ -101,7 +107,9 @@ export async function syncSalaryToNotion(
     try {
       existingTransferIds = await getExistingTransferIds();
     } catch (err) {
-      errors.push(`Could not query Notion existing items: ${(err as Error).message}`);
+      const message = `Could not query Notion existing items: ${(err as Error).message}`;
+      errors.push(message);
+      logger.warn(message);
     }
   } else if (!dryRun) {
     throw new Error(
@@ -109,7 +117,6 @@ export async function syncSalaryToNotion(
     );
   }
 
-  // Filter transfers to only new ones (not in Notion)
   const newTransfers = options.force
     ? allTransfers
     : allTransfers.filter(
@@ -120,17 +127,7 @@ export async function syncSalaryToNotion(
   let insertedCount = 0;
 
   if (!dryRun && newTransfers.length > 0) {
-    const batchInput = newTransfers.map((t) => ({
-      name: t.name,
-      date: t.date,
-      amount: t.amount,
-      currency: "USD" as const,
-      type: "Income" as const,
-      category: t.category,
-      source: "Outlook" as const,
-      notes: t.notes,
-    }));
-
+    const batchInput = newTransfers.map(buildNotionInputFromTransfer);
     const result = await createTransactionsBatch(batchInput);
     insertedCount = result.success;
     if (result.errors.length > 0) {
@@ -149,73 +146,113 @@ export async function syncSalaryToNotion(
   };
 }
 
-export async function getIncomeSummary(
-  options: { fromDate?: string; toDate?: string } = {}
-): Promise<IncomeSummary> {
-  let transfers: WiseTransfer[] = [];
+function buildCanonicalTransferMap(
+  transfers: WiseTransfer[]
+): Map<string, WiseTransfer> {
+  const map = new Map<string, WiseTransfer>();
 
-  // Try fetching from Notion first if token is available
-  if (process.env.NOTION_TOKEN) {
-    try {
-      const notionPages = await queryTransactionsFromNotion();
-      transfers = notionPages
-        .filter((p) => p.type === "Income")
-        .map((p) => {
-          const lkrMatch = p.notes?.match(/LKR\s*([0-9,.]+)/i);
-          const amountLkr =
-            p.currency === "LKR"
-              ? p.amount
-              : lkrMatch
-              ? parseFloat(lkrMatch[1].replace(/,/g, ""))
-              : undefined;
-
-          const rateMatch = p.notes?.match(/Rate:\s*1\s*USD\s*=\s*([0-9,.]+)\s*LKR/i);
-          const rate = rateMatch ? parseFloat(rateMatch[1].replace(/,/g, "")) : undefined;
-
-          let amountUsd = p.amount || 0;
-          if (p.currency === "LKR" && p.amount && p.amount > 2000) {
-            amountUsd = rate ? Math.round((p.amount / rate) * 100) / 100 : Math.round((p.amount / 303.02) * 100) / 100;
-          }
-
-          const resolvedLkr =
-            amountLkr !== undefined
-              ? amountLkr
-              : rate
-              ? Math.round(amountUsd * rate * 100) / 100
-              : Math.round(amountUsd * 315 * 100) / 100;
-
-          return {
-            name: p.name,
-            type: "Income" as const,
-            category: (p.category as any) || "Salary",
-            source: (p.source as any) || "Outlook",
-            amount: amountUsd,
-            currency: "USD" as const,
-            amountLkr: resolvedLkr,
-            rate,
-            date: p.date || "",
-            notes: p.notes || "",
-            transferNumber: p.transferId,
-          };
-        });
-    } catch {
-      // Fallback to Outlook
-      transfers = await fetchSalaryTransfers();
+  for (const transfer of transfers) {
+    if (transfer.transferNumber) {
+      map.set(transfer.transferNumber, transfer);
     }
   }
 
-  if (transfers.length === 0) {
-    transfers = await fetchSalaryTransfers();
+  return map;
+}
+
+function findCanonicalTransfer(
+  page: { name: string; notes?: string; transferId?: string; date?: string },
+  canonicalById: Map<string, WiseTransfer>
+): WiseTransfer | undefined {
+  const transferId = extractTransferIdFromText(
+    page.name,
+    page.notes,
+    page.transferId
+  );
+
+  if (transferId && canonicalById.has(transferId)) {
+    return canonicalById.get(transferId);
   }
+
+  if (page.date === "2025-08-04" || /first payment/i.test(page.name)) {
+    return canonicalById.get("20250804");
+  }
+
+  return undefined;
+}
+
+export async function repairNotionTransactions(
+  options: RepairNotionOptions = {}
+): Promise<RepairNotionResult> {
+  const dryRun = options.dryRun !== false;
+  const errors: string[] = [];
+
+  const canonicalTransfers = await fetchSalaryTransfers();
+  const canonicalById = buildCanonicalTransferMap(canonicalTransfers);
+  const pages = await queryTransactionsFromNotion();
+
+  const updates: Array<{
+    pageId: string;
+    data: ReturnType<typeof buildNotionInputFromTransfer>;
+  }> = [];
+
+  let matchedPages = 0;
+
+  for (const page of pages) {
+    const canonical = findCanonicalTransfer(page, canonicalById);
+    if (!canonical) {
+      logger.warn(`No canonical transfer match for Notion page: ${page.name}`);
+      continue;
+    }
+
+    matchedPages++;
+
+    if (!needsNotionRepair(page, canonical)) {
+      continue;
+    }
+
+    updates.push({
+      pageId: page.id,
+      data: buildNotionInputFromTransfer(canonical),
+    });
+  }
+
+  let repairedCount = 0;
+
+  if (!dryRun && updates.length > 0) {
+    const result = await updateTransactionsBatch(updates);
+    repairedCount = result.success;
+    if (result.errors.length > 0) {
+      errors.push(...result.errors);
+    }
+  } else {
+    repairedCount = updates.length;
+  }
+
+  return {
+    totalPages: pages.length,
+    matchedPages,
+    repairedCount,
+    skippedCount: pages.length - matchedPages,
+    dryRun,
+    errors,
+  };
+}
+
+function summarizeTransfers(
+  transfers: WiseTransfer[],
+  options: { fromDate?: string; toDate?: string } = {}
+): IncomeSummary {
+  let filtered = transfers;
 
   if (options.fromDate) {
-    transfers = transfers.filter((t) => t.date >= options.fromDate!);
+    filtered = filtered.filter((t) => t.date >= options.fromDate!);
   }
   if (options.toDate) {
-    transfers = transfers.filter((t) => t.date <= options.toDate!);
+    filtered = filtered.filter((t) => t.date <= options.toDate!);
   }
 
-  transfers.sort((a, b) => a.date.localeCompare(b.date));
+  filtered.sort((a, b) => a.date.localeCompare(b.date));
 
   let totalUsd = 0;
   let totalLkr = 0;
@@ -224,7 +261,7 @@ export async function getIncomeSummary(
 
   const monthlyMap = new Map<string, { usd: number; lkr: number; count: number }>();
 
-  for (const t of transfers) {
+  for (const t of filtered) {
     totalUsd += t.amount || 0;
     totalLkr += t.amountLkr || 0;
 
@@ -234,7 +271,7 @@ export async function getIncomeSummary(
       salaryCount++;
     }
 
-    const month = t.date.slice(0, 7); // YYYY-MM
+    const month = t.date.slice(0, 7);
     if (month) {
       const current = monthlyMap.get(month) || { usd: 0, lkr: 0, count: 0 };
       current.usd += t.amount || 0;
@@ -256,12 +293,45 @@ export async function getIncomeSummary(
   return {
     totalUsd: Math.round(totalUsd * 100) / 100,
     totalLkr: Math.round(totalLkr * 100) / 100,
-    transferCount: transfers.length,
+    transferCount: filtered.length,
     salaryCount,
     bonusCount,
-    firstTransferDate: transfers.length > 0 ? transfers[0].date : undefined,
+    firstTransferDate: filtered.length > 0 ? filtered[0].date : undefined,
     lastTransferDate:
-      transfers.length > 0 ? transfers[transfers.length - 1].date : undefined,
+      filtered.length > 0 ? filtered[filtered.length - 1].date : undefined,
     monthlyBreakdown,
   };
+}
+
+export async function getIncomeSummary(
+  options: { fromDate?: string; toDate?: string } = {}
+): Promise<IncomeSummary> {
+  let transfers: WiseTransfer[] = [];
+
+  if (process.env.NOTION_TOKEN) {
+    try {
+      const notionPages = await queryTransactionsFromNotion();
+      transfers = notionPages
+        .filter((p) => p.type === "Income")
+        .map(mapNotionPageToTransfer);
+    } catch (err) {
+      logger.warn(
+        `Notion income summary failed, falling back to Outlook: ${(err as Error).message}`
+      );
+      transfers = await fetchSalaryTransfers();
+    }
+  }
+
+  if (transfers.length === 0) {
+    transfers = await fetchSalaryTransfers();
+  }
+
+  return summarizeTransfers(transfers, options);
+}
+
+export async function getMonthlyIncomeSummary(
+  options: { fromDate?: string; toDate?: string } = {}
+): Promise<MonthlyBreakdown[]> {
+  const summary = await getIncomeSummary(options);
+  return summary.monthlyBreakdown;
 }
