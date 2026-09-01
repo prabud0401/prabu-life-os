@@ -11,6 +11,7 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Added** Antigravity starter prompt in `knowledge/prompts/`
 - **Added** AGENTS.md, config templates, .gitignore
 - **Source**: Migrated context from `personal-finance` prototype and salary email analysis
+- **Created** GitHub repo https://github.com/prabud0401/prabu-life-os (private, pushed)
 - **Agent**: Cursor PM
 
 ---

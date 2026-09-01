@@ -1,8 +1,10 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 1 — not started  
-**PM**: Cursor agent
+**Current phase**: Phase 1 — ready for Antigravity  
+**PM**: Cursor agent  
+**GitHub**: https://github.com/prabud0401/prabu-life-os  
+**Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
 
 ---
 
@@ -20,7 +22,8 @@
 - [x] 4 sample transactions seeded in Notion
 - [x] Grok MCP verified: outlook, teams, gmail-local working
 - [x] Knowledge hub created in `prabu-life-os`
-- [x] GitHub repo created (pending push)
+- [x] GitHub repo: https://github.com/prabud0401/prabu-life-os
+- [x] Local clone on Desktop: `C:\Users\prabu\Desktop\prabu-life-os`
 
 ---
 
