@@ -1,6 +1,7 @@
 import express, { type Express } from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -30,7 +31,6 @@ function createServer(): Server {
 
 export async function startHttpServer(port: number): Promise<void> {
   const app: Express = express();
-  const transports = new Map<string, SSEServerTransport>();
 
   app.get("/health", async (_req, res) => {
     const database = await pingDatabase().catch(() => false);
@@ -44,21 +44,34 @@ export async function startHttpServer(port: number): Promise<void> {
 
   registerAuthRoutes(app);
 
-  app.get("/sse", requireApiKey, async (req, res) => {
+  // Streamable HTTP (Grok, modern MCP clients) — POST/GET /sse
+  app.all("/sse", requireApiKey, express.json(), async (req, res) => {
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
+    const server = createServer();
+    await server.connect(transport);
+    await transport.handleRequest(req, res, req.body);
+  });
+
+  // Legacy SSE transport (session-based clients using GET /sse + POST /messages)
+  const legacyTransports = new Map<string, SSEServerTransport>();
+
+  app.get("/sse/legacy", requireApiKey, async (_req, res) => {
     const transport = new SSEServerTransport("/messages", res);
     const sessionId = transport.sessionId;
-    transports.set(sessionId, transport);
+    legacyTransports.set(sessionId, transport);
 
-    res.on("close", () => transports.delete(sessionId));
+    res.on("close", () => legacyTransports.delete(sessionId));
 
     const server = createServer();
     await server.connect(transport);
-    logger.info(`MCP SSE session started: ${sessionId}`);
+    logger.info(`MCP legacy SSE session started: ${sessionId}`);
   });
 
   app.post("/messages", requireApiKey, express.json(), async (req, res) => {
     const sessionId = req.query.sessionId as string;
-    const transport = transports.get(sessionId);
+    const transport = legacyTransports.get(sessionId);
     if (!transport) {
       res.status(404).json({ error: "Session not found" });
       return;

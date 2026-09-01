@@ -20,3 +20,11 @@ enabled = true
 command = "node"
 args = ["C:/Users/prabu/Desktop/prabu-life-os/packages/mcp/dist/index.js"]
 enabled = true
+
+# Remote cloud MCP (Railway) — requires PRABU_MCP_API_KEY in env
+[mcp_servers.prabu-life-os-remote]
+url = "https://prabu-life-os-production.up.railway.app/sse"
+enabled = true
+
+[mcp_servers.prabu-life-os-remote.headers]
+Authorization = "Bearer ${PRABU_MCP_API_KEY}"
