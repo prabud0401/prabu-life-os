@@ -1,14 +1,17 @@
 # MCP Setup — Grok, Antigravity, Cursor
 
-## Working MCPs (verified 2026-09-01 via `grok mcp doctor`)
+## Working MCPs (verified 2026-09-01 via `grok --trust mcp doctor`)
 
 | MCP | Transport | Status | Tools |
 |-----|-----------|--------|-------|
+| **prabu-life-os** | stdio | ✅ | 6 (outlook ×4 + finance ×2) |
 | outlook | stdio | ✅ | 4 |
 | teams | stdio | ✅ | 5 |
 | gmail-local | stdio | ✅ | 9 |
 | pm-tool | http | ✅ | 51 |
 | notion | plugin | ✅ | via Antigravity/Cursor |
+
+> **Folder trust**: Repo-local stdio servers require `grok --trust` (or `/hooks-trust` in TUI) on first use. Without trust, doctor reports "folder untrusted".
 
 ## Grok CLI
 
@@ -17,8 +20,9 @@
 ```powershell
 grok login                    # required once
 cd C:\Users\prabu\Desktop\prabu-life-os
-grok inspect                  # verify project + MCPs
-grok mcp doctor               # health check
+grok --trust inspect          # trust folder + verify project + MCPs
+grok --trust mcp doctor prabu-life-os   # health check (6 tools)
+grok --trust mcp doctor outlook         # health check (4 tools)
 grok                          # interactive agent
 ```
 
@@ -56,6 +60,7 @@ Uses `~/.cursor/mcp.json` — same servers as Grok imports.
 Outlook:  node D:/BlueOcean main/blueocean_mcp/mcps/outlook/dist/index.js
 Teams:    node D:/BlueOcean main/blueocean_mcp/mcps/teams/dist/index.js
 Gmail:    node D:/tools/gmail-mcp-server/dist/index.js
+Life OS:  node C:/Users/prabu/Desktop/prabu-life-os/packages/mcp/dist/index.js
 ```
 
 **Prerequisites**: `az login`, Outlook/Teams one-time `npm run auth` in blueocean_mcp

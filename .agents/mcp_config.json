@@ -11,6 +11,10 @@
     "gmail-local": {
       "command": "node",
       "args": ["D:/tools/gmail-mcp-server/dist/index.js"]
+    },
+    "prabu-life-os": {
+      "command": "node",
+      "args": ["C:/Users/prabu/Desktop/prabu-life-os/packages/mcp/dist/index.js"]
     }
   }
 }

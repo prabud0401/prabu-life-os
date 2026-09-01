@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 1 (1.1–1.3, 1.6–1.8, 1.10 done)  
+**Current phase**: Phase 1 complete (merged to `main`)  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Merge feature/phase-1-scaffold to main | PM / User | Scaffold & Finance sync v1 ready |
+| Phase 2 planning | PM | LKR field, legacy row cleanup, tests |
 
 ---
 
@@ -33,14 +33,16 @@
 - [x] **Phase 1.10**: Live sync executed — 31 rows in Notion Transactions DB, verified deduplication skips existing records
 - [x] Verified `get_income_summary`: $8,490.73 USD across 31 transfers (30 salary, 1 bonus)
 - [x] Verified `npm run build` passes across all workspaces
+- [x] **Merged** `feature/phase-1-scaffold` → `main` via [PR #1](https://github.com/prabud0401/prabu-life-os/pull/1)
+- [x] **Phase 1.9**: Grok MCP doctor — `prabu-life-os` (6 tools), `outlook` (4), `gmail-local` (9) all healthy (`grok --trust mcp doctor <name>`)
 
 ---
 
 ## Next up (Antigravity / Grok / PM)
 
-1. Grok testing: run `grok mcp doctor` and verify finance tools (Phase 1.9)
-2. Add Gmail-local tools wrapper in `packages/core/gmail` (Phase 1.5)
-3. Port Teams tools to `packages/core/teams` (Phase 1.4, when unblocked by PM)
+1. Phase 2: LKR property in Notion schema, legacy row cleanup, tests
+2. Add Gmail-local tools wrapper in `packages/core/gmail` (Phase 1.5, deferred)
+3. Port Teams tools to `packages/core/teams` (Phase 1.4, deferred)
 
 ---
 
@@ -55,7 +57,7 @@
 | Metric | Target | Current |
 |--------|--------|---------|
 | Salary rows in Notion | 32+ | 31 (all historical salary & bonus synced) |
-| MCP tools working | outlook, teams, gmail, finance | 6 tools (outlook: 4, finance: 2) |
+| MCP tools working | outlook, teams, gmail, finance | 6 via `prabu-life-os` MCP (+ legacy outlook/gmail-local in Grok) |
 | Cloud deployed | Phase 3 | No |
 
 ---

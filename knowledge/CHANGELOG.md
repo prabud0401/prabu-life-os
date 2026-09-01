@@ -35,6 +35,14 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-1-scaffold`
 - **Agent**: Antigravity
 
+- **Merged** Phase 1 to `main` via [PR #1](https://github.com/prabud0401/prabu-life-os/pull/1)
+- **Completed** Phase 1.9: Grok MCP smoke test with folder trust
+  - `prabu-life-os` MCP: 6 tools (outlook ×4 + finance ×2) — handshake OK
+  - `outlook` MCP: 4 tools — handshake OK
+  - `gmail-local` MCP: 9 tools — handshake OK
+  - Added `prabu-life-os` server to `.grok/config.toml`
+- **Agent**: Cursor PM
+
 ---
 
 ## Template for new entries

@@ -21,7 +21,7 @@
 - [x] **1.6** `packages/core/finance` — parse Wise email, dedup, Notion write
 - [x] **1.7** MCP tools: `sync_salary_to_notion`, `get_income_summary`
 - [x] **1.8** `config/default.json` with Notion IDs (no secrets)
-- [ ] **1.9** Test via Grok: `grok mcp doctor` all green for outlook/teams/gmail-local
+- [x] **1.9** Test via Grok: `grok --trust mcp doctor` green for `prabu-life-os`, `outlook`, `gmail-local`
 - [x] **1.10** Sync all 31 historical salary transfers to Notion
 
 ### Acceptance
