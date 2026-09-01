@@ -1,7 +1,6 @@
 import express, { type Express } from "express";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
@@ -9,10 +8,13 @@ import {
 import { logger, pingDatabase } from "@prabu-life-os/shared";
 import { allTools, handleToolCall } from "./tools";
 import { requireApiKey } from "./middleware/api-key";
+import { requireMcpAuth } from "./middleware/mcp-auth";
 import { registerAuthRoutes } from "./routes/auth";
+import { registerMcpOAuthRoutes } from "./oauth/routes";
+import { handleStreamableMcpRequest } from "./mcp-handler";
 import { createApiRouter } from "@prabu-life-os/api";
 
-function createServer(): Server {
+function createLegacyMcpServer(): Server {
   const server = new Server(
     { name: "prabu-life-os-mcp", version: "0.1.0" },
     { capabilities: { tools: {} } }
@@ -46,18 +48,19 @@ export async function startHttpServer(port: number): Promise<void> {
   });
 
   registerAuthRoutes(app);
+  registerMcpOAuthRoutes(app);
 
   // Mount REST API endpoints under /api
   app.use("/api", createApiRouter());
 
+  // Gemini web + OAuth MCP clients
+  app.all("/mcp", requireMcpAuth, async (req, res) => {
+    await handleStreamableMcpRequest(req, res);
+  });
+
   // Streamable HTTP (Grok, modern MCP clients) — POST/GET /sse
   app.all("/sse", requireApiKey, async (req, res) => {
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined,
-    });
-    const server = createServer();
-    await server.connect(transport);
-    await transport.handleRequest(req, res, req.body);
+    await handleStreamableMcpRequest(req, res);
   });
 
   // Legacy SSE transport (session-based clients using GET /sse + POST /messages)
@@ -70,7 +73,7 @@ export async function startHttpServer(port: number): Promise<void> {
 
     res.on("close", () => legacyTransports.delete(sessionId));
 
-    const server = createServer();
+    const server = createLegacyMcpServer();
     await server.connect(transport);
     logger.info(`MCP legacy SSE session started: ${sessionId}`);
   });
