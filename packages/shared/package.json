@@ -1,0 +1,23 @@
+{
+  "name": "@prabu-life-os/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared auth, KeyVault, OAuth2, MS Graph, and utility library for Prabu Life OS",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@azure/identity": "^4.4.1",
+    "@azure/keyvault-secrets": "^4.9.0",
+    "@azure/msal-node": "^2.15.0",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
