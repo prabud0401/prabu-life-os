@@ -10,6 +10,8 @@ import {
 import {
   getOutlookAuthConfig,
   initOutlookConfig,
+  initTeamsConfig,
+  getTeamsAuthConfig,
   isGmailAuthenticated,
 } from "@prabu-life-os/core";
 import { requireApiKey } from "../middleware/api-key";
@@ -19,10 +21,16 @@ async function ensureOutlookConfig() {
   return getOutlookAuthConfig();
 }
 
+async function ensureTeamsConfig() {
+  await initTeamsConfig();
+  return getTeamsAuthConfig();
+}
+
 export function registerAuthRoutes(app: Express): void {
   app.get("/auth/status", async (_req: Request, res: Response) => {
     const database = await pingDatabase().catch(() => false);
     let outlook = false;
+    let teams = false;
     let outlookError: string | undefined;
     let gmail = false;
 
@@ -34,6 +42,13 @@ export function registerAuthRoutes(app: Express): void {
     }
 
     try {
+      const teamsConfig = await ensureTeamsConfig();
+      teams = await isAuthenticated(teamsConfig);
+    } catch {
+      teams = false;
+    }
+
+    try {
       gmail = await isGmailAuthenticated();
     } catch {
       gmail = false;
@@ -41,6 +56,7 @@ export function registerAuthRoutes(app: Express): void {
 
     res.json({
       outlook,
+      teams,
       gmail,
       database,
       oauthRedirectUri: process.env.OAUTH_REDIRECT_URI ?? null,
@@ -81,9 +97,16 @@ export function registerAuthRoutes(app: Express): void {
 
       try {
         await upsertMsalTokenCache(mcpName, cache);
-        const config = await ensureOutlookConfig();
-        const outlook = await isAuthenticated(config).catch(() => false);
-        res.json({ ok: true, mcpName, outlook });
+        let outlook = false;
+        let teams = false;
+        if (mcpName === "teams") {
+          const teamsConfig = await ensureTeamsConfig();
+          teams = await isAuthenticated(teamsConfig).catch(() => false);
+        } else {
+          const config = await ensureOutlookConfig();
+          outlook = await isAuthenticated(config).catch(() => false);
+        }
+        res.json({ ok: true, mcpName, outlook, teams });
       } catch (err) {
         res.status(500).json({ error: (err as Error).message });
       }

@@ -1,2 +1,3 @@
-// Teams module stub (Phase 1.4)
-export const teamsPlaceholder = "teams";
+export * from "./types";
+export * from "./config";
+export * from "./service";

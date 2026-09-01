@@ -3,6 +3,8 @@ import { isAuthenticated, pingDatabase } from "@prabu-life-os/shared";
 import {
   getOutlookAuthConfig,
   initOutlookConfig,
+  initTeamsConfig,
+  getTeamsAuthConfig,
   isGmailAuthenticated,
 } from "@prabu-life-os/core";
 
@@ -20,6 +22,7 @@ async function ensureOutlookConfig() {
 healthRouter.get("/", async (_req: Request, res: Response) => {
   const database = await pingDatabase().catch(() => false);
   let outlook = false;
+  let teams = false;
   let outlookError: string | undefined;
   let gmail = false;
 
@@ -28,6 +31,13 @@ healthRouter.get("/", async (_req: Request, res: Response) => {
     outlook = await isAuthenticated(config);
   } catch (err) {
     outlookError = (err as Error).message;
+  }
+
+  try {
+    await initTeamsConfig();
+    teams = await isAuthenticated(getTeamsAuthConfig());
+  } catch {
+    teams = false;
   }
 
   try {
@@ -41,6 +51,7 @@ healthRouter.get("/", async (_req: Request, res: Response) => {
     service: "prabu-life-os-api",
     database,
     outlook,
+    teams,
     gmail,
     outlookError,
     timestamp: new Date().toISOString(),
