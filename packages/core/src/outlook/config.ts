@@ -27,7 +27,7 @@ export async function initOutlookConfig(): Promise<void> {
   _authConfig = {
     clientId,
     tenantId,
-    // no clientSecret → PublicClientApplication + device code flow
+    clientSecret: process.env.OUTLOOK_CLIENT_SECRET,
     scopes: [
       "https://graph.microsoft.com/Mail.Read",
       "https://graph.microsoft.com/User.Read",

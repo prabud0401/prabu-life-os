@@ -44,13 +44,20 @@
 
 ## Phase 3 — Cloud deploy (weeks 4–5)
 
-- [ ] PostgreSQL token store (replace `~/.blueocean-mcp/` files)
-- [ ] Cloud OAuth redirect URIs (Microsoft + Google)
-- [ ] `MCP_MODE=http` + API key on `/sse`
-- [ ] Deploy to Railway
+- [x] PostgreSQL token store (`DATABASE_URL` → `oauth_tokens`, provider `msal`)
+- [x] Cloud OAuth routes (`/auth/microsoft`, `/auth/microsoft/callback`)
+- [x] `MCP_MODE=http` + API key on `/sse` and `/messages`
+- [x] Dockerfile + `railway.toml`
+- [ ] Deploy app service to Railway (user: see `knowledge/RAILWAY.md`)
 - [ ] Grok + Antigravity connect via remote URL
 
 **Cost**: ~$8–12/mo
+
+---
+
+## Phase 3 deploy guide
+
+See **`knowledge/RAILWAY.md`** for step-by-step Railway setup.
 
 ---
 
@@ -73,7 +80,7 @@
 
 ## Current phase
 
-**Phase 2** — complete (merged to `main`)
+**Current phase**: Phase 3 code ready — deploy to Railway (see `knowledge/RAILWAY.md`)
 
 ## PM checkpoints
 

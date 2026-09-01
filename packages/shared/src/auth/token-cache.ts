@@ -2,6 +2,8 @@ import fs from "fs/promises";
 import path from "path";
 import os from "os";
 import type { ICachePlugin, TokenCacheContext } from "@azure/msal-node";
+import { isDatabaseConfigured } from "../db/pool";
+import { createPostgresTokenCache } from "./postgres-token-cache";
 
 export function createFileTokenCache(mcpName: string): ICachePlugin {
   const cacheDir = path.join(os.homedir(), ".blueocean-mcp");
@@ -24,4 +26,12 @@ export function createFileTokenCache(mcpName: string): ICachePlugin {
       }
     },
   };
+}
+
+/** Use Postgres when DATABASE_URL is set; otherwise local file cache. */
+export function createTokenCache(mcpName: string): ICachePlugin {
+  if (isDatabaseConfigured()) {
+    return createPostgresTokenCache(mcpName);
+  }
+  return createFileTokenCache(mcpName);
 }

@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 2 complete (merged to `main`)  
+**Current phase**: Phase 3 code ready — deploy to Railway (`knowledge/RAILWAY.md`)  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Phase 3 planning | PM | Cloud deploy, PostgreSQL token store |
+| Deploy Phase 3 to Railway | User | Postgres ✅ — add app service per `knowledge/RAILWAY.md` |
 
 ---
 
@@ -39,13 +39,17 @@
 - [x] **Phase 2**: `get_income_summary` LKR total fixed — **2,648,425.18 LKR** (matches parser reference)
 - [x] **Phase 2**: Parser unit tests (5 passing), `repairNotionTransactions()` + `scripts/repair-notion-rows.js`
 - [x] **Merged** `feature/phase-2-polish` → `main` via [PR #2](https://github.com/prabud0401/prabu-life-os/pull/2)
+- [x] **Phase 3 (code)**: Postgres token store, HTTP MCP + API key, Microsoft OAuth routes, Dockerfile, `railway.toml`
+- [x] Railway Postgres tables: `oauth_tokens`, `sync_log`
 
 ---
 
 ## Next up (Antigravity / Grok / PM)
 
-1. Phase 3: cloud deploy (Railway), PostgreSQL token store, remote MCP URL
-2. Deferred: Phase 1.4 Teams, Phase 1.5 Gmail wrapper
+1. **You**: Deploy app to Railway — follow `knowledge/RAILWAY.md`
+2. Azure: add redirect URI for `/auth/microsoft/callback`
+3. Connect Outlook once via `https://YOUR-APP/auth/microsoft`
+4. Grok remote MCP config with `PRABU_MCP_API_KEY`
 
 ---
 
@@ -63,7 +67,7 @@
 | Income totals | $8,490.73 / 2.65M LKR | ✅ $8,490.73 / 2,648,425.18 LKR |
 | MCP tools working | outlook, teams, gmail, finance | 6 via `prabu-life-os` MCP |
 | Parser tests | passing | 5/5 |
-| Cloud deployed | Phase 3 | No |
+| Cloud deployed | Phase 3 | Postgres ✅ — app deploy pending |
 
 ---
 
