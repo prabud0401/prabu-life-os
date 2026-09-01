@@ -74,9 +74,13 @@ See **`knowledge/RAILWAY.md`** for step-by-step Railway setup and bridge auth.
 
 ## Phase 5 — Mobile app (week 8+)
 
-- [ ] New repo `prabu-life-os-mobile`
-- [ ] Flutter or React Native
-- [ ] Calls Phase 4 API only
+- [x] Scaffold repo `prabu-life-os-mobile` (Expo tabs template)
+- [x] Architecture, design system, API contract, Antigravity prompt
+- [ ] Antigravity: full UI/UX, SMS, AI assistant, all screens
+- [ ] Calls Phase 4 + Finance Intelligence API
+
+**Mobile repo:** `C:\Users\prabu\Desktop\prabu-life-os-mobile`  
+**Antigravity prompt:** `ANTIGRAVITY-START.md` in mobile repo
 
 ---
 

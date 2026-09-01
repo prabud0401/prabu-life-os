@@ -314,3 +314,44 @@ Searches tasks in PM tool by keyword query.
 curl -X GET "https://prabu-life-os-production.up.railway.app/api/pm/search?q=oscar&project=sales" \
   -H "Authorization: Bearer YOUR_JWT_OR_API_KEY"
 ```
+
+---
+
+## Financial Intelligence (Mobile / Phase 5)
+
+### 10. Reconciliation Report
+
+- **Method**: `GET`
+- **Path**: `/api/finance/intelligence/report`
+- **Authentication**: Required
+
+Query: `fromDate`, `toDate` (optional)
+
+Returns summary, base/happy/worst scenarios, transaction ledger, and markdown report.
+
+### 11. Ingest SMS Alert
+
+- **Method**: `POST`
+- **Path**: `/api/finance/intelligence/ingest/sms`
+- **Authentication**: Required
+
+```json
+{ "sender": "PEOPLESBANK", "text": "Your a/c credited with LKR 25,000.00", "receivedAt": "2026-09-01T10:00:00Z" }
+```
+
+### 12. Ingest Finance Email
+
+- **Method**: `POST`
+- **Path**: `/api/finance/intelligence/ingest/email`
+
+### 13. Classify Transaction
+
+- **Method**: `POST`
+- **Path**: `/api/finance/intelligence/classify`
+
+### 14. List Registered Accounts
+
+- **Method**: `GET`
+- **Path**: `/api/finance/intelligence/accounts`
+
+See `knowledge/FINANCE-INTELLIGENCE.md` for classification rules.
