@@ -1,11 +1,13 @@
 import { searchEmails, getEmail } from "../outlook/service";
 import { ingestEmailNotification } from "./engine";
+import { ingestPdfAttachmentsFromOutlookMessage } from "./sync-attachments";
 
 const FINANCE_QUERIES = [
   "Bill Payment",
   "Card Payment",
   "Fund transfer",
   "Transfer sent",
+  "statement attachment:pdf",
 ];
 
 export async function syncFinanceEmailsFromOutlook(options: {
@@ -15,12 +17,16 @@ export async function syncFinanceEmailsFromOutlook(options: {
   inserted: number;
   skipped: number;
   messagesProcessed: number;
+  pdfInserted: number;
+  pdfSkipped: number;
   errors: string[];
 }> {
   const maxPerQuery = options.maxPerQuery ?? 15;
   const errors: string[] = [];
   let inserted = 0;
   let skipped = 0;
+  let pdfInserted = 0;
+  let pdfSkipped = 0;
   let messagesProcessed = 0;
   const seenIds = new Set<string>();
 
@@ -52,6 +58,14 @@ export async function syncFinanceEmailsFromOutlook(options: {
           });
           inserted += ingest.inserted;
           skipped += ingest.skipped;
+
+          const pdfResult = await ingestPdfAttachmentsFromOutlookMessage({
+            id: full.id,
+            hasAttachments: full.hasAttachments,
+          });
+          pdfInserted += pdfResult.inserted;
+          pdfSkipped += pdfResult.skipped;
+          errors.push(...pdfResult.errors);
         } catch (err) {
           errors.push(`Message ${msg.id}: ${(err as Error).message}`);
         }
@@ -61,5 +75,12 @@ export async function syncFinanceEmailsFromOutlook(options: {
     }
   }
 
-  return { inserted, skipped, messagesProcessed, errors };
+  return {
+    inserted,
+    skipped,
+    messagesProcessed,
+    pdfInserted,
+    pdfSkipped,
+    errors,
+  };
 }

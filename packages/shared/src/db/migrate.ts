@@ -1,6 +1,33 @@
 import { getPool, isDatabaseConfigured } from "./pool";
 import { logger } from "../utils/logger";
 
+const OAUTH_TOKENS_SQL = `
+CREATE TABLE IF NOT EXISTS oauth_tokens (
+  id            SERIAL PRIMARY KEY,
+  provider      TEXT NOT NULL,
+  user_id       TEXT NOT NULL,
+  access_token  TEXT,
+  refresh_token TEXT,
+  expires_at    TIMESTAMPTZ,
+  scope         TEXT,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  UNIQUE (provider, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS sync_log (
+  id            SERIAL PRIMARY KEY,
+  job_name      TEXT NOT NULL,
+  status        TEXT NOT NULL,
+  message       TEXT,
+  rows_affected INT,
+  ran_at        TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_oauth_tokens_provider_user
+  ON oauth_tokens (provider, user_id);
+`;
+
 const FINANCIAL_TRANSACTIONS_SQL = `
 CREATE TABLE IF NOT EXISTS financial_transactions (
   id              SERIAL PRIMARY KEY,
@@ -43,6 +70,18 @@ CREATE TABLE IF NOT EXISTS mobile_device_tokens (
 CREATE INDEX IF NOT EXISTS idx_mobile_device_tokens_token
   ON mobile_device_tokens (device_token);
 `;
+
+export async function ensureOAuthTokensTable(): Promise<boolean> {
+  if (!isDatabaseConfigured()) return false;
+
+  try {
+    await getPool().query(OAUTH_TOKENS_SQL);
+    return true;
+  } catch (err) {
+    logger.warn(`OAuth tokens migration failed: ${(err as Error).message}`);
+    return false;
+  }
+}
 
 export async function ensureFinancialTransactionsTable(): Promise<boolean> {
   if (!isDatabaseConfigured()) return false;

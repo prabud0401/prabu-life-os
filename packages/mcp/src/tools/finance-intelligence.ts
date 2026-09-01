@@ -6,6 +6,7 @@ import {
   ingestSmsAlert,
   REGISTERED_ACCOUNTS,
   runFinancialReconciliation,
+  sendExpoPushNotification,
   syncFinanceEmailsFromGmail,
   syncFinanceEmailsFromOutlook,
 } from "@prabu-life-os/core";
@@ -138,6 +139,29 @@ export const syncFinanceEmailsFromOutlookTool: Tool = {
   },
 };
 
+export const sendPushNotificationTool: Tool = {
+  name: "send_push_notification",
+  description:
+    "Send an Expo push notification to registered mobile devices (salary alerts, large debits, custom messages).",
+  inputSchema: {
+    type: "object",
+    required: ["title", "body"],
+    properties: {
+      title: { type: "string", description: "Notification title" },
+      body: { type: "string", description: "Notification body text" },
+      data: {
+        type: "object",
+        description: "Optional deep-link payload (e.g. { screen: 'finance' })",
+      },
+      tokens: {
+        type: "array",
+        items: { type: "string" },
+        description: "Optional specific Expo push tokens; defaults to all registered devices",
+      },
+    },
+  },
+};
+
 export const financeIntelligenceTools: Tool[] = [
   runFinancialReconciliationTool,
   ingestSmsAlertTool,
@@ -147,6 +171,7 @@ export const financeIntelligenceTools: Tool[] = [
   listRegisteredAccountsTool,
   syncFinanceEmailsFromGmailTool,
   syncFinanceEmailsFromOutlookTool,
+  sendPushNotificationTool,
 ];
 
 export async function handleFinanceIntelligenceTool(
@@ -220,6 +245,15 @@ export async function handleFinanceIntelligenceTool(
           maxPerQuery:
             args.maxPerQuery !== undefined ? Number(args.maxPerQuery) : undefined,
           since: args.since as string | undefined,
+        });
+        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      }
+      case "send_push_notification": {
+        const result = await sendExpoPushNotification({
+          title: args.title as string,
+          body: args.body as string,
+          data: args.data as Record<string, unknown> | undefined,
+          tokens: args.tokens as string[] | undefined,
         });
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
       }

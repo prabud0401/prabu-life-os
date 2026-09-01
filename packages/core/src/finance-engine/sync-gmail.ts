@@ -1,11 +1,13 @@
 import { searchMessages, readMessage } from "../gmail/service";
 import { ingestEmailNotification } from "./engine";
+import { ingestPdfAttachmentsFromGmailMessage } from "./sync-attachments";
 
 const FINANCE_QUERIES = [
   'subject:"Bill Payment"',
   'subject:"Card Payment"',
   'subject:"Fund transfer"',
   'from:brbangalore@blueoceansp.ai subject:"Transfer sent"',
+  'has:attachment filename:pdf subject:(statement OR "e-statement" OR "account statement")',
 ];
 
 export async function syncFinanceEmailsFromGmail(options: {
@@ -15,12 +17,16 @@ export async function syncFinanceEmailsFromGmail(options: {
   inserted: number;
   skipped: number;
   messagesProcessed: number;
+  pdfInserted: number;
+  pdfSkipped: number;
   errors: string[];
 }> {
   const maxPerQuery = options.maxPerQuery ?? 15;
   const errors: string[] = [];
   let inserted = 0;
   let skipped = 0;
+  let pdfInserted = 0;
+  let pdfSkipped = 0;
   let messagesProcessed = 0;
   const seenIds = new Set<string>();
 
@@ -48,6 +54,14 @@ export async function syncFinanceEmailsFromGmail(options: {
           });
           inserted += ingest.inserted;
           skipped += ingest.skipped;
+
+          const pdfResult = await ingestPdfAttachmentsFromGmailMessage({
+            id: msg.id,
+            attachments: full.attachments,
+          });
+          pdfInserted += pdfResult.inserted;
+          pdfSkipped += pdfResult.skipped;
+          errors.push(...pdfResult.errors);
         } catch (err) {
           errors.push(`Message ${msg.id}: ${(err as Error).message}`);
         }
@@ -57,5 +71,12 @@ export async function syncFinanceEmailsFromGmail(options: {
     }
   }
 
-  return { inserted, skipped, messagesProcessed, errors };
+  return {
+    inserted,
+    skipped,
+    messagesProcessed,
+    pdfInserted,
+    pdfSkipped,
+    errors,
+  };
 }

@@ -24,9 +24,10 @@ function rowToTransaction(row: Record<string, unknown>): FinancialTransaction {
 
 export async function saveTransactions(
   transactions: FinancialTransaction[]
-): Promise<{ inserted: number; skipped: number }> {
+): Promise<{ inserted: number; skipped: number; insertedTransactions: FinancialTransaction[] }> {
   let inserted = 0;
   let skipped = 0;
+  const insertedTransactions: FinancialTransaction[] = [];
 
   for (const tx of transactions) {
     const exists = await transactionExists(tx.externalId);
@@ -62,9 +63,10 @@ export async function saveTransactions(
       memoryStore.push(tx);
     }
     inserted++;
+    insertedTransactions.push(tx);
   }
 
-  return { inserted, skipped };
+  return { inserted, skipped, insertedTransactions };
 }
 
 async function transactionExists(externalId?: string): Promise<boolean> {

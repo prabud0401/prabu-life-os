@@ -331,10 +331,13 @@ export async function ingestBankStatementPdf(input: BankStatementPdfInput): Prom
   const parsed = await parseBankStatementPdf(input);
   const result = await saveTransactions(parsed);
 
-  if (parsed.length > 0) {
-    // Notify on notable transactions asynchronously
-    notifyNotableTransactions(parsed).catch(() => {});
+  if (result.insertedTransactions.length > 0) {
+    notifyNotableTransactions(result.insertedTransactions).catch(() => {});
   }
 
-  return { parsed, ...result };
+  return {
+    parsed,
+    inserted: result.inserted,
+    skipped: result.skipped,
+  };
 }

@@ -60,6 +60,21 @@ App service → **Variables** → **Add Variable Reference**:
 
 **Do not** rely on Azure Key Vault on Railway — set Outlook vars explicitly.
 
+### Optional / feature-specific vars
+
+| Variable | Purpose |
+|----------|---------|
+| `GMAIL_OAUTH_KEYS_B64` | Base64 of `gcp-oauth.keys.json` — required for Gmail API calls on Railway |
+| `PM_MCP_TOKEN` | PM Tool MCP proxy auth token |
+| `PM_TOOL_BASE_URL` | PM Tool API base URL (optional; has default) |
+| `JWT_SECRET` | JWT signing for mobile auth (optional; falls back to API key) |
+| `NOTION_DATABASE_ID` | Notion income database (optional; has default) |
+| `MCP_PUBLIC_URL` | Public MCP URL for Gemini web OAuth |
+| `MCP_OAUTH_CLIENT_ID` | Gemini MCP OAuth client ID |
+| `MCP_OAUTH_CLIENT_SECRET` | Gemini MCP OAuth client secret (not the same as `PRABU_MCP_API_KEY`) |
+
+See also: `knowledge/GEMINI-MCP.md` for Gemini web setup.
+
 ## 4. Azure redirect URI
 
 In Azure Portal → App registrations → your app → **Authentication**:
@@ -142,6 +157,37 @@ npm run auth:gmail:bridge -- --status
 
 Expected: `"gmail": true`, `"outlook": true` on `/auth/status`.
 
+## 7b. Connect Teams (one-time bridge)
+
+Teams uses a **separate** MSAL cache from Outlook (`user_id = "teams"` in Postgres).
+
+First-time local sign-in:
+
+```powershell
+cd C:\Users\prabu\Desktop\prabu-life-os
+npm run auth:teams
+```
+
+Push local cache to Railway:
+
+```powershell
+npm run auth:token:bridge -- --teams
+```
+
+Or push everything at once:
+
+```powershell
+npm run auth:token:bridge -- --all
+```
+
+Check status:
+
+```powershell
+npm run auth:token:bridge -- --status
+```
+
+Expected: `"teams": true` on `/auth/status`.
+
 ## 8. Grok remote MCP
 
 `.grok/config.toml`:
@@ -165,6 +211,14 @@ curl https://YOUR-APP.up.railway.app/health
 
 Expected: `{ "status": "ok", "database": true }`
 
+Full API health (auth flags):
+
+```powershell
+curl https://YOUR-APP.up.railway.app/api/health
+```
+
+Expected fields: `database`, `outlook`, `teams`, `gmail` (each `true` when tokens are valid).
+
 ## Local HTTP test (optional)
 
 ```powershell
@@ -175,9 +229,11 @@ npm run start:mcp
 curl http://localhost:3000/health
 ```
 
-## Tables (already created in Console)
+## Tables (auto-created on startup)
 
-- `oauth_tokens` — MSAL cache blob in `refresh_token` when `provider='msal'`
+- `oauth_tokens` — MSAL / OAuth2 token cache
 - `sync_log` — sync job audit trail
+- `financial_transactions` — finance intelligence ledger
+- `mobile_device_tokens` — Expo push tokens
 
-SQL reference: `migrations/001_initial.sql`
+SQL reference: `migrations/001_initial.sql`, `002_financial_transactions.sql`, `003_mobile_device_tokens.sql`

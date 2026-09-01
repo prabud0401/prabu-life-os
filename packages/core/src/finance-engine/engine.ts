@@ -1,4 +1,5 @@
 import { getIncomeSummary } from "../finance/service";
+import { notifyNotableTransactions } from "../notifications/push";
 import { applyClassificationToTransaction } from "./classifier";
 import { parseEmailNotification } from "./parsers/email";
 import { parseSmsAlert } from "./parsers/sms";
@@ -88,16 +89,25 @@ export function summarizeTransactions(
   return summary;
 }
 
+async function notifyInsertedTransactions(
+  insertedTransactions: FinancialTransaction[]
+): Promise<void> {
+  if (insertedTransactions.length === 0) return;
+  await notifyNotableTransactions(insertedTransactions).catch(() => {});
+}
+
 export async function ingestSmsAlert(input: SmsIngestInput) {
   const parsed = parseSmsAlert(input);
   const result = await saveTransactions(parsed);
-  return { parsed, ...result };
+  await notifyInsertedTransactions(result.insertedTransactions);
+  return { parsed, inserted: result.inserted, skipped: result.skipped };
 }
 
 export async function ingestEmailNotification(input: EmailIngestInput) {
   const parsed = parseEmailNotification(input);
   const result = await saveTransactions(parsed);
-  return { parsed, ...result };
+  await notifyInsertedTransactions(result.insertedTransactions);
+  return { parsed, inserted: result.inserted, skipped: result.skipped };
 }
 
 export function classifyTransaction(input: {

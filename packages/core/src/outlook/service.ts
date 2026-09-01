@@ -136,3 +136,44 @@ export async function listFolders(): Promise<MailFolder[]> {
     totalCount: f.totalItemCount,
   }));
 }
+
+export interface OutlookAttachmentSummary {
+  id: string;
+  name: string;
+  contentType: string;
+  size: number;
+}
+
+export async function listEmailAttachments(
+  messageId: string
+): Promise<OutlookAttachmentSummary[]> {
+  const client = await getOutlookGraphClient();
+  const response = await client
+    .api(`/me/messages/${messageId}/attachments`)
+    .get();
+
+  return (response.value || [])
+    .filter((attachment: any) => attachment["@odata.type"] === "#microsoft.graph.fileAttachment")
+    .map((attachment: any) => ({
+      id: attachment.id,
+      name: attachment.name || "attachment",
+      contentType: attachment.contentType || "application/octet-stream",
+      size: attachment.size || 0,
+    }));
+}
+
+export async function downloadEmailAttachment(
+  messageId: string,
+  attachmentId: string
+): Promise<Buffer> {
+  const client = await getOutlookGraphClient();
+  const attachment = await client
+    .api(`/me/messages/${messageId}/attachments/${attachmentId}`)
+    .get();
+
+  if (!attachment.contentBytes) {
+    throw new Error("Attachment has no downloadable content");
+  }
+
+  return Buffer.from(attachment.contentBytes, "base64");
+}

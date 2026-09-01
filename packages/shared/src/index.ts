@@ -30,6 +30,7 @@ export {
   hasOAuthToken,
 } from "./db/oauth-tokens";
 export {
+  ensureOAuthTokensTable,
   ensureFinancialTransactionsTable,
   hasFinancialTransactionsTable,
   ensureMobileDeviceTokensTable,

@@ -443,3 +443,23 @@ export async function sendDraft(params: { draftId: string }) {
   });
   return { id: response.data.id!, threadId: response.data.threadId! };
 }
+
+export async function downloadAttachment(params: {
+  messageId: string;
+  attachmentId: string;
+}): Promise<Buffer> {
+  const gmail = await getGmailClient();
+  const response = await gmail.users.messages.attachments.get({
+    userId: "me",
+    messageId: params.messageId,
+    id: params.attachmentId,
+  });
+
+  const data = response.data.data;
+  if (!data) {
+    throw new Error("Empty attachment payload");
+  }
+
+  const normalized = data.replace(/-/g, "+").replace(/_/g, "/");
+  return Buffer.from(normalized, "base64");
+}
