@@ -15,9 +15,27 @@ Railway project
 
 ## 1. Add app service
 
-1. Railway project → **New** → **GitHub Repo** → `prabu-life-os`
-2. Branch: `main` (after PR merge) or `feature/phase-3-railway` for testing
-3. Railway detects **Dockerfile** automatically
+1. Railway project → **New** → **GitHub Repo** → `prabu-life-os` (the **root repo**, not a package)
+2. Branch: `main`
+3. Railway must use the root **Dockerfile** (see `railway.toml`)
+
+### ⚠️ Wrong setup (fix if you see this)
+
+Railway sometimes auto-creates **separate services** for npm workspaces:
+
+- `@prabu-life-os/core` ❌ delete
+- `@prabu-life-os/mcp` ❌ delete
+
+You need **one** service for the whole repo. Steps:
+
+1. **Do not deploy** the workspace services (cancel "Apply changes" if pending)
+2. Delete `@prabu-life-os/core` and `@prabu-life-os/mcp` services
+3. **New** → **GitHub Repo** → select `prabud0401/prabu-life-os`
+4. Open the new service → **Settings** → **Build**:
+   - Builder: **Dockerfile**
+   - Dockerfile path: `Dockerfile`
+   - Root directory: `/` (repo root)
+5. **Postgres must be in the same Railway project** as the app (add Postgres here if you only have it in another project)
 
 ## 2. Link Postgres to app
 
