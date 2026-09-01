@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "npm run build && node --test test/parser.test.js"
+    "test": "npm run build && node --test test/parser.test.js test/finance-engine.test.js"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^3.0.7",

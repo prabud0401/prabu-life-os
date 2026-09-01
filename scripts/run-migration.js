@@ -3,7 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const { Client } = require("pg");
 
-const sqlPath = path.join(__dirname, "..", "migrations", "001_initial.sql");
+const migrationFile = process.argv[2] || "001_initial.sql";
+const sqlPath = path.join(__dirname, "..", "migrations", migrationFile);
 const sql = fs.readFileSync(sqlPath, "utf8");
 
 (async () => {
@@ -12,6 +13,8 @@ const sql = fs.readFileSync(sqlPath, "utf8");
     console.error("Set DATABASE_URL or DATABASE_PUBLIC_URL");
     process.exit(1);
   }
+
+  console.log(`Running migration: ${migrationFile}`);
 
   const client = new Client({
     connectionString: url,

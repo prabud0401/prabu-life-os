@@ -4,10 +4,12 @@ import { financeTools, handleFinanceTool } from "./finance";
 import { pmToolTools, handlePmToolTool } from "./pmtool";
 import { teamsTools, handleTeamsTool } from "./teams";
 import { gmailTools, handleGmailTool } from "./gmail";
+import { financeIntelligenceTools, handleFinanceIntelligenceTool } from "./finance-intelligence";
 
 export const allTools: Tool[] = [
   ...outlookTools,
   ...financeTools,
+  ...financeIntelligenceTools,
   ...teamsTools,
   ...pmToolTools,
   ...gmailTools,
@@ -25,6 +27,11 @@ export async function handleToolCall(
   // Finance tools
   if (financeTools.some((t) => t.name === name)) {
     return handleFinanceTool(name, args);
+  }
+
+  // Financial Intelligence Agent tools
+  if (financeIntelligenceTools.some((t) => t.name === name)) {
+    return handleFinanceIntelligenceTool(name, args);
   }
 
   // Teams tools
@@ -53,4 +60,5 @@ export * from "./finance";
 export * from "./pmtool";
 export * from "./teams";
 export * from "./gmail";
+export * from "./finance-intelligence";
 
