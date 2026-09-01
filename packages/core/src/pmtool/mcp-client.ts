@@ -14,13 +14,15 @@ interface McpToolResult {
 function getMcpUrl(): string {
   const config = getPmToolConfig();
   const raw = config.mcpUrl || config.baseUrl;
-  if (raw.endsWith("/mcp")) {
-    return raw;
+  let url = raw;
+  if (!url.endsWith("/mcp") && !url.endsWith("/mcp/")) {
+    if (url.endsWith("/api")) {
+      url = `${url}/mcp`;
+    } else {
+      url = `${url.replace(/\/$/, "")}/api/mcp`;
+    }
   }
-  if (raw.endsWith("/api")) {
-    return `${raw}/mcp`;
-  }
-  return `${raw.replace(/\/$/, "")}/api/mcp`;
+  return url.endsWith("/") ? url : `${url}/`;
 }
 
 function parseMcpJson(text: string): unknown {

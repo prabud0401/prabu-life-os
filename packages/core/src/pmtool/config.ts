@@ -4,7 +4,7 @@ export function getPmToolConfig(): PmToolConfig {
   const configured =
     process.env.PM_TOOL_BASE_URL ||
     process.env.PM_TOOL_MCP_URL ||
-    "https://pm-tool.blueoceansp.dev/api/mcp";
+    "https://pm-tool.blueoceansp.dev/api/mcp/";
 
   return {
     baseUrl: configured,
