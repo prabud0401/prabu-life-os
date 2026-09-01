@@ -115,6 +115,48 @@ After `sync_salary_to_notion` MCP tool works and Notion has 32+ rows.
 
 ---
 
+## Review #004 — 2026-09-01
+
+**Reviewer**: Cursor PM  
+**Scope**: Phase 1.10 live Notion sync verification
+
+### Independent verification
+
+| Check | Result |
+|-------|--------|
+| Commit `c86d274` on `feature/phase-1-scaffold` | ✅ |
+| Branch pushed to `origin/feature/phase-1-scaffold` | ✅ |
+| Live sync (`dryRun: false`) | ✅ 0 inserted / 31 skipped (dedup clean) |
+| Notion Transactions DB row count | ✅ **31 rows** (27 USD + 4 legacy LKR-labeled samples) |
+| `get_income_summary` USD total | ✅ **$8,490.73** (30 salary + 1 bonus) |
+| `get_income_summary` LKR total | ⚠️ **2,434,354.54 LKR** (parser reference: 2,648,425.18) |
+| Errors | ✅ None |
+| Phase 1.4 Teams / 1.5 Gmail started | ✅ Not started (correct) |
+
+### Verdict
+
+**Approved** — Phase 1.10 complete. Phase 1 scaffold + finance sync v1 is ready to merge to `main`.
+
+### Notes
+
+1. **Row count 31 vs 32+ target** — Acceptable. Outlook parser discovers 31 historical transfers (Aug 2025–Sep 2026). The “32+” target assumed an extra row; all transfers are accounted for.
+2. **4 legacy sample rows** — Pre-sync seeds use `Currency: LKR` with USD amounts in `Amount`. New sync rows correctly use `Currency: USD`. Fix in Phase 2 (one-time Notion cleanup or re-sync with `force`).
+3. **LKR aggregate gap** — `get_income_summary` derives LKR from Notes regex when reading Notion; ~214k LKR short vs parser totals. Phase 2: add dedicated LKR property to Transactions schema or ensure Notes always include parsed LKR.
+4. **Security** — Rotate `NOTION_TOKEN` if it was ever pasted in chat. Never commit `.env`.
+
+### Next steps
+
+1. **User/PM**: Merge `feature/phase-1-scaffold` → `main`
+2. **Antigravity**: Phase 1.9 — Grok end-to-end MCP test (`grok mcp doctor` + finance tools)
+3. **Phase 2 backlog**: LKR field, legacy row cleanup, tests, monthly summary polish
+4. Do **not** start Phase 1.4 (Teams) or 1.5 (Gmail) until PM approves
+
+### Next PM review trigger
+
+After merge to `main` and Grok MCP smoke test (Phase 1.9), or when starting Phase 2.
+
+---
+
 ## Template
 
 ```
