@@ -76,7 +76,10 @@ export async function extractTextFromPdfBuffer(
   password?: string
 ): Promise<string> {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  const data = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
+  // Node Buffer extends Uint8Array but pdfjs rejects Buffer — always copy to plain Uint8Array
+  const data = Buffer.isBuffer(buffer)
+    ? new Uint8Array(buffer.buffer, buffer.byteOffset, buffer.byteLength)
+    : new Uint8Array(buffer);
 
   const loadingTask = pdfjs.getDocument({
     data,
