@@ -30,6 +30,20 @@ CREATE INDEX IF NOT EXISTS idx_financial_transactions_source
   ON financial_transactions (source);
 `;
 
+const MOBILE_DEVICE_TOKENS_SQL = `
+CREATE TABLE IF NOT EXISTS mobile_device_tokens (
+  id              SERIAL PRIMARY KEY,
+  device_token    TEXT NOT NULL UNIQUE,
+  platform        TEXT,
+  device_name     TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_mobile_device_tokens_token
+  ON mobile_device_tokens (device_token);
+`;
+
 export async function ensureFinancialTransactionsTable(): Promise<boolean> {
   if (!isDatabaseConfigured()) return false;
 
@@ -53,6 +67,18 @@ export async function hasFinancialTransactionsTable(): Promise<boolean> {
     );
     return res.rows.length > 0;
   } catch {
+    return false;
+  }
+}
+
+export async function ensureMobileDeviceTokensTable(): Promise<boolean> {
+  if (!isDatabaseConfigured()) return false;
+
+  try {
+    await getPool().query(MOBILE_DEVICE_TOKENS_SQL);
+    return true;
+  } catch (err) {
+    logger.warn(`Mobile device tokens migration failed: ${(err as Error).message}`);
     return false;
   }
 }

@@ -32,4 +32,5 @@ export {
 export {
   ensureFinancialTransactionsTable,
   hasFinancialTransactionsTable,
+  ensureMobileDeviceTokensTable,
 } from "./db/migrate";
