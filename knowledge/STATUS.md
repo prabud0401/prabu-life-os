@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 4 completed — REST API implemented & mounted on Railway app  
+**Current phase**: Gmail Bridge & Phase 4 REST API implemented  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Merge feature/phase-4-api to main | PM / User | PR ready with REST API & tests |
+| Merge feature/gmail-bridge to main | PM / User | Gmail bridge, REST API & tests ready |
 
 ---
 
@@ -49,6 +49,8 @@
 - [x] Mounted REST API under `/api` in `packages/mcp` http-server and added standalone runner (`npm run start:api`)
 - [x] Added `docs/api-spec.md` with full request/response examples
 - [x] Automated test suite: 11 tests passing across `core` and `api`
+- [x] **Gmail Token Bridge**: `POST /auth/gmail/bridge` + `scripts/auth-gmail-bridge.js` / `.ps1` (`npm run auth:gmail:bridge`)
+- [x] `packages/core/gmail` wrapper for Postgres/disk credentials + `packages/shared` OAuth2 token helpers
 
 ---
 
@@ -56,7 +58,7 @@
 
 1. Mobile client / frontend integration calling Phase 4 REST API
 2. Port Phase 1.4 Teams tools to `packages/core/teams`
-3. Add Gmail-local tools wrapper in `packages/core/gmail` (Phase 1.5)
+3. Expose Gmail tools in `packages/mcp` and `packages/core/gmail`
 
 ---
 
@@ -74,8 +76,9 @@
 | Income totals | $8,490.73 / 2.65M LKR | ✅ $8,490.73 / 2,648,425.18 LKR |
 | MCP tools working | outlook, teams, gmail, finance | 6 via `prabu-life-os` MCP |
 | REST API endpoints | health, auth, finance, transactions | 5 endpoints under `/api` |
+| Token bridges | Outlook + Gmail | ✅ Outlook (`msal`) + Gmail (`oauth2`) |
 | Test suite | passing | 11/11 passing |
-| Cloud deployed | Phase 3/4 | ✅ Live on Railway (MCP + REST API) |
+| Cloud deployed | Phase 3/4 | ✅ Live on Railway (MCP + REST API + Bridges) |
 
 ---
 

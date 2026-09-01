@@ -5,8 +5,13 @@ import {
   isAuthenticated,
   pingDatabase,
   upsertMsalTokenCache,
+  upsertOAuth2Token,
 } from "@prabu-life-os/shared";
-import { getOutlookAuthConfig, initOutlookConfig } from "@prabu-life-os/core";
+import {
+  getOutlookAuthConfig,
+  initOutlookConfig,
+  isGmailAuthenticated,
+} from "@prabu-life-os/core";
 import { requireApiKey } from "../middleware/api-key";
 
 async function ensureOutlookConfig() {
@@ -19,6 +24,7 @@ export function registerAuthRoutes(app: Express): void {
     const database = await pingDatabase().catch(() => false);
     let outlook = false;
     let outlookError: string | undefined;
+    let gmail = false;
 
     try {
       const config = await ensureOutlookConfig();
@@ -27,8 +33,15 @@ export function registerAuthRoutes(app: Express): void {
       outlookError = (err as Error).message;
     }
 
+    try {
+      gmail = await isGmailAuthenticated();
+    } catch {
+      gmail = false;
+    }
+
     res.json({
       outlook,
+      gmail,
       database,
       oauthRedirectUri: process.env.OAUTH_REDIRECT_URI ?? null,
       outlookError,
@@ -71,6 +84,35 @@ export function registerAuthRoutes(app: Express): void {
         const config = await ensureOutlookConfig();
         const outlook = await isAuthenticated(config).catch(() => false);
         res.json({ ok: true, mcpName, outlook });
+      } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+      }
+    }
+  );
+
+  /**
+   * Push a local Gmail OAuth2 token (e.g. ~/.gmail-mcp/credentials.json)
+   * into Railway Postgres (provider: oauth2, user_id: gmail).
+   */
+  app.post(
+    "/auth/gmail/bridge",
+    requireApiKey,
+    async (req: Request, res: Response) => {
+      const credentials = req.body?.credentials || req.body?.token || req.body?.cache;
+      const provider = "oauth2";
+      const userId = "gmail";
+
+      if (!credentials) {
+        res.status(400).json({
+          error: "Body must include credentials (Gmail OAuth JSON string or object)",
+        });
+        return;
+      }
+
+      try {
+        await upsertOAuth2Token(provider, userId, credentials);
+        const gmail = await isGmailAuthenticated().catch(() => false);
+        res.json({ ok: true, provider, user_id: userId, gmail });
       } catch (err) {
         res.status(500).json({ error: (err as Error).message });
       }

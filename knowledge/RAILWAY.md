@@ -119,7 +119,30 @@ npm run auth:outlook:bridge -- --status
 
 Expected: `"outlook": true` on `/auth/status`.
 
-## 7. Grok remote MCP
+## 7. Connect Gmail (one-time bridge)
+
+Push your local Gmail OAuth2 credentials (`~/.gmail-mcp/credentials.json` from `D:/tools/gmail-mcp-server`) into Railway Postgres:
+
+```powershell
+cd C:\Users\prabu\Desktop\prabu-life-os
+.\scripts\auth-gmail-bridge.ps1
+```
+
+Or:
+
+```powershell
+npm run auth:gmail:bridge
+```
+
+Check status:
+
+```powershell
+npm run auth:gmail:bridge -- --status
+```
+
+Expected: `"gmail": true`, `"outlook": true` on `/auth/status`.
+
+## 8. Grok remote MCP
 
 `.grok/config.toml`:
 

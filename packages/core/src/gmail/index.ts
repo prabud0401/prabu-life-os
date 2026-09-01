@@ -1,2 +1,3 @@
-// Gmail module stub (Phase 1.5)
-export const gmailPlaceholder = "gmail";
+export * from "./types";
+export * from "./config";
+export * from "./auth";

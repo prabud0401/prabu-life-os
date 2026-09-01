@@ -85,6 +85,16 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-4-api`
 - **Agent**: Antigravity
 
+- **Implemented** Gmail Token Bridge for Cloud MCP
+  - Created `packages/core/src/gmail`: configuration, types, and auth loader checking Postgres (`oauth_tokens`, provider `oauth2`, user_id `gmail`) and disk (`~/.gmail-mcp/credentials.json`)
+  - Added `upsertOAuth2Token`, `getOAuth2Token`, `hasOAuthToken` in `@prabu-life-os/shared`
+  - Added `POST /auth/gmail/bridge` (API key protected) in `@prabu-life-os/mcp`
+  - Updated `/auth/status` and `/api/health` to report `gmail: boolean`
+  - Created `scripts/auth-gmail-bridge.js` & `scripts/auth-gmail-bridge.ps1` with `npm run auth:gmail:bridge`
+  - Documented Gmail bridge in `knowledge/RAILWAY.md`
+- **Branch**: `feature/gmail-bridge`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries
