@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 1 (1.1–1.3, 1.6–1.8 done)  
+**Current phase**: Phase 1 (1.1–1.3, 1.6–1.8, 1.10 done)  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Phase 1.10 Notion Live Sync | Antigravity / Grok | Requires `NOTION_TOKEN` in `.env` |
+| Merge feature/phase-1-scaffold to main | PM / User | Scaffold & Finance sync v1 ready |
 
 ---
 
@@ -30,14 +30,15 @@
 - [x] Committed Phase 1.1–1.3 to `feature/phase-1-scaffold`
 - [x] **Phase 1.6**: Wise email parser & Notion write client with deduplication in `packages/core/finance` & `packages/core/notion`
 - [x] **Phase 1.7**: Expose `sync_salary_to_notion` and `get_income_summary` tools via `@prabu-life-os/mcp`
-- [x] Verified parser against 31 historical transfers ($8,490.73 USD / 2,648,425.18 LKR parsed cleanly)
+- [x] **Phase 1.10**: Live sync executed — 31 rows in Notion Transactions DB, verified deduplication skips existing records
+- [x] Verified `get_income_summary`: $8,490.73 USD across 31 transfers (30 salary, 1 bonus)
 - [x] Verified `npm run build` passes across all workspaces
 
 ---
 
 ## Next up (Antigravity / Grok / PM)
 
-1. Add `NOTION_TOKEN` to `.env` to execute live Notion sync (Phase 1.10)
+1. Grok testing: run `grok mcp doctor` and verify finance tools (Phase 1.9)
 2. Add Gmail-local tools wrapper in `packages/core/gmail` (Phase 1.5)
 3. Port Teams tools to `packages/core/teams` (Phase 1.4, when unblocked by PM)
 
@@ -45,9 +46,7 @@
 
 ## Blockers
 
-| Blocker | Impact | Action |
-|---------|--------|--------|
-| `NOTION_TOKEN` not in `.env` | Live write to Notion DB pending | User adds `NOTION_TOKEN=<token>` to `.env` |
+*None currently blocking.*
 
 ---
 
@@ -55,7 +54,7 @@
 
 | Metric | Target | Current |
 |--------|--------|---------|
-| Salary rows in Notion | 32+ | 4 (samples; 31 ready to sync via MCP) |
+| Salary rows in Notion | 32+ | 31 (all historical salary & bonus synced) |
 | MCP tools working | outlook, teams, gmail, finance | 6 tools (outlook: 4, finance: 2) |
 | Cloud deployed | Phase 3 | No |
 

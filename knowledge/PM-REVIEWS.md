@@ -85,6 +85,36 @@ After `sync_salary_to_notion` MCP tool works and Notion has 32+ rows.
 
 ---
 
+## Review #003 — 2026-09-01
+
+**Reviewer**: Cursor PM  
+**Scope**: Phase 1.6–1.7 verification
+
+### Verification
+
+| Check | Result |
+|-------|--------|
+| Commits `b6199e9` + `b27936b` | ✅ |
+| `npm run build` | ✅ (PM re-verified) |
+| Finance parser + Notion client + MCP tools | ✅ |
+| Parser totals | ✅ $8,490.73 USD / 2,648,425.18 LKR |
+| Live Notion sync | ❌ Dry-run only — `NOTION_TOKEN` not in `.env` |
+| Notion rows | ❌ Still 4 (need 32+) |
+| Pushed to GitHub | ❌ Branch local only |
+| `walkthrough.md` | ❌ Not in repo |
+
+### Verdict
+
+**Conditionally approved** — code is good; Phase 1 not done until live sync.
+
+### Next: Phase 1.10
+
+1. User adds `NOTION_TOKEN` to `.env`
+2. Run sync with `dryRun: false`
+3. Push branch, then merge to `main`
+
+---
+
 ## Template
 
 ```

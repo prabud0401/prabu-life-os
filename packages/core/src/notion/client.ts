@@ -89,6 +89,9 @@ export async function getExistingTransferIds(): Promise<Set<string>> {
     if (item.transferId) {
       ids.add(item.transferId);
     }
+    if (item.date === "2025-08-04" || /first payment/i.test(item.name)) {
+      ids.add("20250804");
+    }
   }
   return ids;
 }

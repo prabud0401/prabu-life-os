@@ -26,6 +26,12 @@ All notable changes to this project. Format: date — summary — agent/tool.
   - Created `packages/mcp/src/tools/finance.ts`: exposed `sync_salary_to_notion` and `get_income_summary` tools
   - Verified against 31 historical transfers in Outlook: parsed $8,490.73 USD / 2,648,425.18 LKR across 30 salary + 1 bonus transfer
   - Verified `npm run build` passes across all packages
+- **Completed** Phase 1.10: Live Notion synchronization executed
+  - Connected `prabudOS` integration to Notion Finance Hub & Transactions DB
+  - Executed live sync: 27 new transfers added to Notion, 4 existing samples skipped via deduplication
+  - Final Notion row count: 31 rows (100% deduplicated and synced)
+  - Re-run test verified 0 duplicate inserts (all 31 skipped)
+  - Income summary verified: $8,490.73 USD across 31 records
 - **Branch**: `feature/phase-1-scaffold`
 - **Agent**: Antigravity
 

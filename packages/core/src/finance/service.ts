@@ -162,15 +162,37 @@ export async function getIncomeSummary(
         .filter((p) => p.type === "Income")
         .map((p) => {
           const lkrMatch = p.notes?.match(/LKR\s*([0-9,.]+)/i);
-          const amountLkr = lkrMatch ? parseFloat(lkrMatch[1].replace(/,/g, "")) : undefined;
+          const amountLkr =
+            p.currency === "LKR"
+              ? p.amount
+              : lkrMatch
+              ? parseFloat(lkrMatch[1].replace(/,/g, ""))
+              : undefined;
+
+          const rateMatch = p.notes?.match(/Rate:\s*1\s*USD\s*=\s*([0-9,.]+)\s*LKR/i);
+          const rate = rateMatch ? parseFloat(rateMatch[1].replace(/,/g, "")) : undefined;
+
+          let amountUsd = p.amount || 0;
+          if (p.currency === "LKR" && p.amount && p.amount > 2000) {
+            amountUsd = rate ? Math.round((p.amount / rate) * 100) / 100 : Math.round((p.amount / 303.02) * 100) / 100;
+          }
+
+          const resolvedLkr =
+            amountLkr !== undefined
+              ? amountLkr
+              : rate
+              ? Math.round(amountUsd * rate * 100) / 100
+              : Math.round(amountUsd * 315 * 100) / 100;
+
           return {
             name: p.name,
-            type: "Income",
+            type: "Income" as const,
             category: (p.category as any) || "Salary",
             source: (p.source as any) || "Outlook",
-            amount: p.amount || 0,
-            currency: "USD",
-            amountLkr,
+            amount: amountUsd,
+            currency: "USD" as const,
+            amountLkr: resolvedLkr,
+            rate,
             date: p.date || "",
             notes: p.notes || "",
             transferNumber: p.transferId,
