@@ -5,28 +5,37 @@ import {
   isAuthenticated,
   pingDatabase,
 } from "@prabu-life-os/shared";
-import { getOutlookAuthConfig } from "@prabu-life-os/core";
+import { getOutlookAuthConfig, initOutlookConfig } from "@prabu-life-os/core";
+
+async function ensureOutlookConfig() {
+  await initOutlookConfig();
+  return getOutlookAuthConfig();
+}
 
 export function registerAuthRoutes(app: Express): void {
   app.get("/auth/status", async (_req: Request, res: Response) => {
-    try {
-      const config = getOutlookAuthConfig();
-      const outlook = await isAuthenticated(config);
-      const database = await pingDatabase().catch(() => false);
+    const database = await pingDatabase().catch(() => false);
+    let outlook = false;
+    let outlookError: string | undefined;
 
-      res.json({
-        outlook,
-        database,
-        oauthRedirectUri: process.env.OAUTH_REDIRECT_URI ?? null,
-      });
+    try {
+      const config = await ensureOutlookConfig();
+      outlook = await isAuthenticated(config);
     } catch (err) {
-      res.status(500).json({ error: (err as Error).message });
+      outlookError = (err as Error).message;
     }
+
+    res.json({
+      outlook,
+      database,
+      oauthRedirectUri: process.env.OAUTH_REDIRECT_URI ?? null,
+      outlookError,
+    });
   });
 
   app.get("/auth/microsoft", async (_req: Request, res: Response) => {
     try {
-      const config = getOutlookAuthConfig();
+      const config = await ensureOutlookConfig();
       const url = await getMicrosoftAuthUrl(config);
       res.redirect(url);
     } catch (err) {
@@ -49,7 +58,7 @@ export function registerAuthRoutes(app: Express): void {
     }
 
     try {
-      const config = getOutlookAuthConfig();
+      const config = await ensureOutlookConfig();
       await acquireMicrosoftTokenByCode(config, code);
       res
         .status(200)
