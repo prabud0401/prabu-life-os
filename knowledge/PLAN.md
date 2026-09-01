@@ -73,7 +73,7 @@
 
 ## Current phase
 
-**Phase 2** — complete (merged pending)
+**Phase 2** — complete (merged to `main`)
 
 ## PM checkpoints
 

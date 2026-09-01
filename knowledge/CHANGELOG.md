@@ -50,7 +50,7 @@ All notable changes to this project. Format: date — summary — agent/tool.
   - Repaired all 31 Notion rows: 0 wrong Currency, 0 missing Amount LKR
   - Verified totals from Notion: $8,490.73 USD / 2,648,425.18 LKR
   - Added parser unit tests (5 passing) and `scripts/repair-notion-rows.js`
-- **Branch**: `feature/phase-2-polish`
+- **Branch**: `feature/phase-2-polish` (merged via PR #2)
 - **Agent**: Cursor PM
 
 ---
