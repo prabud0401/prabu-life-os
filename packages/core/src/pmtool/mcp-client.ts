@@ -81,35 +81,12 @@ async function postMcp(method: string, params: Record<string, unknown> = {}): Pr
   }
 
   const url = getMcpUrl();
-  const requestId = Date.now();
-  const messages =
-    method === "tools/call"
-      ? [
-          {
-            jsonrpc: "2.0",
-            id: requestId,
-            method: "initialize",
-            params: {
-              protocolVersion: "2024-11-05",
-              capabilities: {},
-              clientInfo: { name: "prabu-life-os", version: "0.1.0" },
-            },
-          },
-          {
-            jsonrpc: "2.0",
-            id: requestId + 1,
-            method,
-            params,
-          },
-        ]
-      : [
-          {
-            jsonrpc: "2.0",
-            id: requestId,
-            method,
-            params,
-          },
-        ];
+  const body = {
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method,
+    params,
+  };
 
   const res = await fetch(url, {
     method: "POST",
@@ -118,7 +95,7 @@ async function postMcp(method: string, params: Record<string, unknown> = {}): Pr
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
     },
-    body: JSON.stringify(messages),
+    body: JSON.stringify(body),
   });
 
   const text = await res.text();
