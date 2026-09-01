@@ -10,6 +10,7 @@ import { logger, pingDatabase } from "@prabu-life-os/shared";
 import { allTools, handleToolCall } from "./tools";
 import { requireApiKey } from "./middleware/api-key";
 import { registerAuthRoutes } from "./routes/auth";
+import { createApiRouter } from "@prabu-life-os/api";
 
 function createServer(): Server {
   const server = new Server(
@@ -32,6 +33,8 @@ function createServer(): Server {
 export async function startHttpServer(port: number): Promise<void> {
   const app: Express = express();
 
+  app.use(express.json());
+
   app.get("/health", async (_req, res) => {
     const database = await pingDatabase().catch(() => false);
     res.json({
@@ -44,8 +47,11 @@ export async function startHttpServer(port: number): Promise<void> {
 
   registerAuthRoutes(app);
 
+  // Mount REST API endpoints under /api
+  app.use("/api", createApiRouter());
+
   // Streamable HTTP (Grok, modern MCP clients) — POST/GET /sse
-  app.all("/sse", requireApiKey, express.json(), async (req, res) => {
+  app.all("/sse", requireApiKey, async (req, res) => {
     const transport = new StreamableHTTPServerTransport({
       sessionIdGenerator: undefined,
     });
@@ -69,7 +75,7 @@ export async function startHttpServer(port: number): Promise<void> {
     logger.info(`MCP legacy SSE session started: ${sessionId}`);
   });
 
-  app.post("/messages", requireApiKey, express.json(), async (req, res) => {
+  app.post("/messages", requireApiKey, async (req, res) => {
     const sessionId = req.query.sessionId as string;
     const transport = legacyTransports.get(sessionId);
     if (!transport) {

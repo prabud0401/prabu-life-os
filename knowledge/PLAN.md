@@ -17,7 +17,7 @@
 - [x] **1.2** Copy/adapt `blueocean_mcp/shared` auth + Graph client
 - [x] **1.3** Port Outlook tools (list, search, get, folders)
 - [ ] **1.4** Port Teams tools (list_teams, channels, messages, chats) [Deferred by PM]
-- [ ] **1.5** Add Gmail-local tools wrapper in `core/gmail`
+- [x] **1.5** Add Gmail tools wrapper in `core/gmail` & OAuth token bridge
 - [x] **1.6** `packages/core/finance` — parse Wise email, dedup, Notion write
 - [x] **1.7** MCP tools: `sync_salary_to_notion`, `get_income_summary`
 - [x] **1.8** `config/default.json` with Notion IDs (no secrets)
@@ -46,10 +46,11 @@
 
 - [x] PostgreSQL token store (`DATABASE_URL` → `oauth_tokens`, provider `msal`)
 - [x] Cloud OAuth routes (`/auth/microsoft`, `/auth/microsoft/callback`)
+- [x] Local token bridge (`POST /auth/microsoft/bridge` + `scripts/auth-outlook-bridge.ps1`)
 - [x] `MCP_MODE=http` + API key on `/sse` and `/messages`
 - [x] Dockerfile + `railway.toml`
-- [ ] Deploy app service to Railway (user: see `knowledge/RAILWAY.md`)
-- [ ] Grok + Antigravity connect via remote URL
+- [x] Deploy app service to Railway (`https://prabu-life-os-production.up.railway.app`)
+- [x] Grok + Antigravity connect via remote URL (`/sse`)
 
 **Cost**: ~$8–12/mo
 
@@ -57,16 +58,17 @@
 
 ## Phase 3 deploy guide
 
-See **`knowledge/RAILWAY.md`** for step-by-step Railway setup.
+See **`knowledge/RAILWAY.md`** for step-by-step Railway setup and bridge auth.
 
 ---
 
 ## Phase 4 — REST API (weeks 6–7)
 
-- [ ] `packages/api` — Express/Fastify
-- [ ] JWT auth
-- [ ] Endpoints: `/finance/summary`, `/finance/sync`, `/transactions`
-- [ ] `docs/api-spec.md`
+- [x] `packages/api` — Express REST controllers and routes
+- [x] JWT auth — `POST /api/auth/token` + flexible Bearer / API key auth middleware
+- [x] Endpoints: `/api/finance/summary`, `/api/finance/sync`, `/api/transactions`, `/api/health`
+- [x] Unified mounting on `/api` in `packages/mcp` http-server + standalone `start:api` runner
+- [x] `docs/api-spec.md` with full request/response examples and curl commands
 
 ---
 
@@ -80,7 +82,7 @@ See **`knowledge/RAILWAY.md`** for step-by-step Railway setup.
 
 ## Current phase
 
-**Current phase**: Phase 3 code ready — deploy to Railway (see `knowledge/RAILWAY.md`)
+**Current phase**: Phase 4 completed — ready for Phase 5 Mobile App / Phase 1.4 Teams / 1.5 Gmail
 
 ## PM checkpoints
 

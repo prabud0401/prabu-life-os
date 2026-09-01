@@ -1,10 +1,14 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { outlookTools, handleOutlookTool } from "./outlook";
 import { financeTools, handleFinanceTool } from "./finance";
+import { pmToolTools, handlePmToolTool } from "./pmtool";
+import { teamsTools, handleTeamsTool } from "./teams";
 
 export const allTools: Tool[] = [
   ...outlookTools,
   ...financeTools,
+  ...teamsTools,
+  ...pmToolTools,
 ];
 
 export async function handleToolCall(
@@ -21,6 +25,16 @@ export async function handleToolCall(
     return handleFinanceTool(name, args);
   }
 
+  // Teams tools
+  if (teamsTools.some((t) => t.name === name)) {
+    return handleTeamsTool(name, args);
+  }
+
+  // PM Tool tools
+  if (pmToolTools.some((t) => t.name === name)) {
+    return handlePmToolTool(name, args);
+  }
+
   return {
     content: [{ type: "text", text: `Unknown tool: ${name}` }],
     isError: true,
@@ -29,4 +43,6 @@ export async function handleToolCall(
 
 export * from "./outlook";
 export * from "./finance";
+export * from "./pmtool";
+export * from "./teams";
 

@@ -78,6 +78,8 @@ Copy the URL and set `OAUTH_REDIRECT_URI` accordingly.
 
 ## 6. Connect Outlook (one-time)
 
+### Option A — Azure redirect (needs app admin)
+
 Open in browser:
 
 ```
@@ -86,13 +88,61 @@ https://YOUR-APP.up.railway.app/auth/microsoft
 
 Sign in with your Microsoft account. Token is saved to Postgres (`oauth_tokens`, provider=`msal`).
 
+### Option B — Local bridge (no Azure redirect change)
+
+If you cannot add a Railway redirect URI to the corporate Azure app, push your **local** Outlook token to Railway Postgres:
+
+```powershell
+cd C:\Users\prabu\Desktop\prabu-life-os
+.\scripts\auth-outlook-bridge.ps1
+```
+
+First-time local sign-in:
+
+```powershell
+.\scripts\auth-outlook-bridge.ps1 -Auth
+```
+
+Or:
+
+```powershell
+npm run auth:outlook:bridge -- --auth
+```
+
+This uses `~/.blueocean-mcp/outlook-tokens.json` (same cache as local Outlook MCP) and POSTs it to `POST /auth/microsoft/bridge` with your `PRABU_MCP_API_KEY`.
+
 Check status:
 
-```
-https://YOUR-APP.up.railway.app/auth/status
+```powershell
+npm run auth:outlook:bridge -- --status
 ```
 
-## 7. Grok remote MCP
+Expected: `"outlook": true` on `/auth/status`.
+
+## 7. Connect Gmail (one-time bridge)
+
+Push your local Gmail OAuth2 credentials (`~/.gmail-mcp/credentials.json` from `D:/tools/gmail-mcp-server`) into Railway Postgres:
+
+```powershell
+cd C:\Users\prabu\Desktop\prabu-life-os
+.\scripts\auth-gmail-bridge.ps1
+```
+
+Or:
+
+```powershell
+npm run auth:gmail:bridge
+```
+
+Check status:
+
+```powershell
+npm run auth:gmail:bridge -- --status
+```
+
+Expected: `"gmail": true`, `"outlook": true` on `/auth/status`.
+
+## 8. Grok remote MCP
 
 `.grok/config.toml`:
 

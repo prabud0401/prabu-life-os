@@ -2,7 +2,7 @@
 import "dotenv/config";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { logger } from "@prabu-life-os/shared";
-import { initOutlookConfig } from "@prabu-life-os/core";
+import { initOutlookConfig, initTeamsConfig } from "@prabu-life-os/core";
 import { startHttpServer } from "./http-server";
 import { createStdioServer } from "./stdio-server";
 
@@ -12,6 +12,14 @@ async function main(): Promise<void> {
   } catch (err) {
     logger.warn(
       `Could not initialize Outlook config at startup: ${(err as Error).message}`
+    );
+  }
+
+  try {
+    await initTeamsConfig();
+  } catch (err) {
+    logger.warn(
+      `Could not initialize Teams config at startup: ${(err as Error).message}`
     );
   }
 

@@ -61,6 +61,58 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-3-railway`
 - **Agent**: Cursor PM
 
+- **Completed** Phase 3 Deploy & Bridge Auth: Live Railway deployment + Outlook token bridge
+  - Implemented `POST /auth/microsoft/bridge` in `@prabu-life-os/mcp` and `upsertMsalTokenCache` in `@prabu-life-os/shared`
+  - Created `scripts/auth-outlook-bridge.js` & `scripts/auth-outlook-bridge.ps1` with `npm run auth:outlook:bridge`
+  - Streamable HTTP `/sse` and legacy `/sse/legacy` supported for Grok & remote clients
+  - Live verified `https://prabu-life-os-production.up.railway.app/auth/status`: `"outlook": true`, `"database": true`
+  - Tested `npm run build` and `npm test` (5/5 passing)
+- **Branch**: `feature/phase-3-cloud-bridge`
+- **Agent**: Antigravity
+
+- **Implemented** Phase 4: REST API package & JWT authentication
+  - Created `@prabu-life-os/api` workspace with Express REST routes:
+    - `POST /api/auth/token`: Exchanges `PRABU_MCP_API_KEY` for a short-lived JWT (1h expiry)
+    - `GET /api/finance/summary`: Returns aggregated income and monthly metrics from Notion
+    - `POST /api/finance/sync`: Triggers salary sync from Outlook to Notion with deduplication
+    - `GET /api/transactions`: Queries transactions from Notion DB with optional filters & pagination
+    - `GET /api/health`: Health status endpoint returning database and Outlook connectivity
+  - Flexible auth middleware supporting both Bearer JWT and direct API Key
+  - Mounted REST API under `/api` in `packages/mcp` HTTP server for unified Railway deployment
+  - Added standalone `start:api` script and updated root `Dockerfile`
+  - Created `docs/api-spec.md` with complete OpenAPI & curl documentation
+  - Added automated API test suite (11 total tests passing across monorepo)
+- **Branch**: `feature/phase-4-api`
+- **Agent**: Antigravity
+
+- **Implemented** Gmail Token Bridge for Cloud MCP
+  - Created `packages/core/src/gmail`: configuration, types, and auth loader checking Postgres (`oauth_tokens`, provider `oauth2`, user_id `gmail`) and disk (`~/.gmail-mcp/credentials.json`)
+  - Added `upsertOAuth2Token`, `getOAuth2Token`, `hasOAuthToken` in `@prabu-life-os/shared`
+  - Added `POST /auth/gmail/bridge` (API key protected) in `@prabu-life-os/mcp`
+  - Updated `/auth/status` and `/api/health` to report `gmail: boolean`
+  - Created `scripts/auth-gmail-bridge.js` & `scripts/auth-gmail-bridge.ps1` with `npm run auth:gmail:bridge`
+  - Documented Gmail bridge in `knowledge/RAILWAY.md`
+- **Branch**: `feature/gmail-bridge`
+- **Agent**: Antigravity
+
+- **Implemented** PM Tool Proxy & Cloud MCP Integration
+  - Created `packages/core/src/pmtool`: types, config (`PM_TOOL_BASE_URL`, `PM_MCP_TOKEN`), and client (`listMyTasks`, `getTask`, `searchTasks`)
+  - Added MCP tools: `list_my_tasks`, `get_task`, `search_tasks` in `@prabu-life-os/mcp` (bringing total tools to 9)
+  - Added REST API routes under `/api/pm` (`GET /api/pm/health`, `GET /api/pm/tasks`, `GET /api/pm/tasks/:id`, `GET /api/pm/search`)
+  - Updated `.env.example` with `PM_TOOL_BASE_URL` and `PM_MCP_TOKEN`
+  - Updated `docs/api-spec.md` with PM Tool proxy endpoint specifications
+  - Automated test suite: 12 tests passing across workspaces
+- **Branch**: `feature/pm-tool-proxy`
+- **Agent**: Antigravity
+
+- **Added** Multi-Agent Tooling & Workflow Documentation
+  - Created `knowledge/TOOLING.md`: agent responsibilities (Antigravity, Grok CLI, Cursor PM), MCP configuration, and fallback handling when hitting quotas
+  - Created `knowledge/prompts/ANTIGRAVITY-PHASE-4.md`: standardized Phase 4 REST API agent prompt
+  - Updated `knowledge/PLAN.md` checkboxes and phase statuses
+  - Updated `knowledge/STATUS.md` with Phase 3/4 completions and metrics
+- **Branch**: `feature/tooling-docs`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries

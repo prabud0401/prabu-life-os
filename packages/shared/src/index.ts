@@ -23,3 +23,9 @@ export {
   closePool,
 } from "./db/pool";
 export { logSyncJob } from "./db/sync-log";
+export {
+  upsertMsalTokenCache,
+  upsertOAuth2Token,
+  getOAuth2Token,
+  hasOAuthToken,
+} from "./db/oauth-tokens";
