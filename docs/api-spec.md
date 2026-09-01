@@ -230,3 +230,87 @@ curl -X GET "https://prabu-life-os-production.up.railway.app/api/transactions?li
   ]
 }
 ```
+
+---
+
+### 6. PM Tool Health Check
+
+Inspects PM Tool proxy configuration and base URL.
+
+- **Method**: `GET`
+- **Path**: `/api/pm/health`
+- **Authentication**: None (Public)
+
+#### Response (200 OK)
+```json
+{
+  "status": "ok",
+  "service": "pm-tool-proxy",
+  "configured": true,
+  "baseUrl": "https://pm.blueoceansp.ai/api",
+  "hasToken": true,
+  "timestamp": "2026-09-01T13:45:00.000Z"
+}
+```
+
+---
+
+### 7. List PM Tasks
+
+Lists assigned tasks from the PM tool with optional status, project, and sprint filters.
+
+- **Method**: `GET`
+- **Path**: `/api/pm/tasks`
+- **Authentication**: Required (`Bearer <JWT>` or `Bearer <API_KEY>`)
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `status` | `string` | No | Task status filter (`todo`, `inprogress`, `done`, `blocked`) |
+| `project` | `string` | No | Project filter (`sales`, `engineering`, etc.) |
+| `sprint` | `string` | No | Sprint filter (e.g. `'Sprint 11'`) |
+| `limit` | `number` | No | Maximum number of tasks to return |
+
+#### Request
+```bash
+curl -X GET "https://prabu-life-os-production.up.railway.app/api/pm/tasks?project=sales&status=todo" \
+  -H "Authorization: Bearer YOUR_JWT_OR_API_KEY"
+```
+
+---
+
+### 8. Get PM Task Details
+
+Fetches task details by task ID.
+
+- **Method**: `GET`
+- **Path**: `/api/pm/tasks/:id`
+- **Authentication**: Required (`Bearer <JWT>` or `Bearer <API_KEY>`)
+
+#### Request
+```bash
+curl -X GET "https://prabu-life-os-production.up.railway.app/api/pm/tasks/2452" \
+  -H "Authorization: Bearer YOUR_JWT_OR_API_KEY"
+```
+
+---
+
+### 9. Search PM Tasks
+
+Searches tasks in PM tool by keyword query.
+
+- **Method**: `GET`
+- **Path**: `/api/pm/search`
+- **Authentication**: Required (`Bearer <JWT>` or `Bearer <API_KEY>`)
+
+#### Query Parameters
+| Parameter | Type | Required | Description |
+|---|---|---|---|
+| `q` | `string` | Yes | Search keyword or query string |
+| `project` | `string` | No | Optional project filter |
+
+#### Request
+```bash
+curl -X GET "https://prabu-life-os-production.up.railway.app/api/pm/search?q=oscar&project=sales" \
+  -H "Authorization: Bearer YOUR_JWT_OR_API_KEY"
+```

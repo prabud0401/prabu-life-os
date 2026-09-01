@@ -95,6 +95,16 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/gmail-bridge`
 - **Agent**: Antigravity
 
+- **Implemented** PM Tool Proxy & Cloud MCP Integration
+  - Created `packages/core/src/pmtool`: types, config (`PM_TOOL_BASE_URL`, `PM_MCP_TOKEN`), and client (`listMyTasks`, `getTask`, `searchTasks`)
+  - Added MCP tools: `list_my_tasks`, `get_task`, `search_tasks` in `@prabu-life-os/mcp` (bringing total tools to 9)
+  - Added REST API routes under `/api/pm` (`GET /api/pm/health`, `GET /api/pm/tasks`, `GET /api/pm/tasks/:id`, `GET /api/pm/search`)
+  - Updated `.env.example` with `PM_TOOL_BASE_URL` and `PM_MCP_TOKEN`
+  - Updated `docs/api-spec.md` with PM Tool proxy endpoint specifications
+  - Automated test suite: 12 tests passing across workspaces
+- **Branch**: `feature/pm-tool-proxy`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries

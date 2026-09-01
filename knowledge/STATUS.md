@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Gmail Bridge & Phase 4 REST API implemented  
+**Current phase**: PM Tool Proxy, Gmail Bridge & Phase 4 REST API implemented  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Merge feature/gmail-bridge to main | PM / User | Gmail bridge, REST API & tests ready |
+| Merge feature/pm-tool-proxy to main | PM / User | PM proxy, Gmail bridge, REST API & tests ready |
 
 ---
 
@@ -48,9 +48,13 @@
 - [x] **Phase 4 REST API**: Created `@prabu-life-os/api` with JWT auth (`POST /api/auth/token`), protected routes (`/api/finance/summary`, `/api/finance/sync`, `/api/transactions`, `/api/health`)
 - [x] Mounted REST API under `/api` in `packages/mcp` http-server and added standalone runner (`npm run start:api`)
 - [x] Added `docs/api-spec.md` with full request/response examples
-- [x] Automated test suite: 11 tests passing across `core` and `api`
+- [x] Automated test suite: 12 tests passing across `core` and `api`
 - [x] **Gmail Token Bridge**: `POST /auth/gmail/bridge` + `scripts/auth-gmail-bridge.js` / `.ps1` (`npm run auth:gmail:bridge`)
 - [x] `packages/core/gmail` wrapper for Postgres/disk credentials + `packages/shared` OAuth2 token helpers
+- [x] **PM Tool Proxy & Cloud MCP**:
+  - Added `packages/core/pmtool` (`listMyTasks`, `getTask`, `searchTasks`)
+  - Exposed MCP tools: `list_my_tasks`, `get_task`, `search_tasks` (now 9 total tools in `@prabu-life-os/mcp`)
+  - Mounted proxy routes under `/api/pm` (`/api/pm/health`, `/api/pm/tasks`, `/api/pm/tasks/:id`, `/api/pm/search`)
 
 ---
 
@@ -74,10 +78,10 @@
 |--------|--------|---------|
 | Salary rows in Notion | 31 | 31 (all synced, backfilled) |
 | Income totals | $8,490.73 / 2.65M LKR | ✅ $8,490.73 / 2,648,425.18 LKR |
-| MCP tools working | outlook, teams, gmail, finance | 6 via `prabu-life-os` MCP |
-| REST API endpoints | health, auth, finance, transactions | 5 endpoints under `/api` |
+| MCP tools working | outlook, teams, gmail, finance, pmtool | 9 via `prabu-life-os` MCP |
+| REST API endpoints | health, auth, finance, transactions, pm | 9 endpoints under `/api` |
 | Token bridges | Outlook + Gmail | ✅ Outlook (`msal`) + Gmail (`oauth2`) |
-| Test suite | passing | 11/11 passing |
+| Test suite | passing | 12/12 passing |
 | Cloud deployed | Phase 3/4 | ✅ Live on Railway (MCP + REST API + Bridges) |
 
 ---

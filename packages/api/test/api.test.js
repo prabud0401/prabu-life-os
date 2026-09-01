@@ -75,6 +75,14 @@ describe("REST API Endpoints", () => {
     assert.equal(data.expiresIn, 3600);
   });
 
+  it("GET /api/pm/health returns PM proxy status", async () => {
+    const res = await fetch(`${baseUrl}/api/pm/health`);
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.status, "ok");
+    assert.equal(data.service, "pm-tool-proxy");
+  });
+
   it("Protected routes reject unauthorized requests", async () => {
     const res = await fetch(`${baseUrl}/api/transactions`);
     assert.equal(res.status, 401);
