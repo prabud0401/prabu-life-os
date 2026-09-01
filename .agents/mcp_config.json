@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "outlook": {
+      "command": "node",
+      "args": ["D:/BlueOcean main/blueocean_mcp/mcps/outlook/dist/index.js"]
+    },
+    "teams": {
+      "command": "node",
+      "args": ["D:/BlueOcean main/blueocean_mcp/mcps/teams/dist/index.js"]
+    },
+    "gmail-local": {
+      "command": "node",
+      "args": ["D:/tools/gmail-mcp-server/dist/index.js"]
+    }
+  }
+}

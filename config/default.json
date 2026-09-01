@@ -1,0 +1,30 @@
+{
+  "notion": {
+    "finance_hub_page_id": "3ce460e4-5a48-8161-8456-ddb911c937c7",
+    "finance_hub_url": "https://app.notion.com/p/3ce460e45a4881618456ddb911c937c7",
+    "transactions_database_id": "44ec9720-556c-4e49-a28b-eac28a487e30",
+    "transactions_data_source_id": "33423467-e1d3-4ebf-bd10-adfbe7e56b1d",
+    "transactions_url": "https://app.notion.com/p/44ec9720556c4e49a28beac28a487e30"
+  },
+  "email_sources": {
+    "outlook": {
+      "salary_sender": "brbangalore@blueoceansp.ai",
+      "search_queries": [
+        "from:brbangalore Transfer sent",
+        "from:brbangalore Your money's been sent"
+      ]
+    },
+    "gmail": {
+      "search_queries": [
+        "from:wise",
+        "from:noreply@wise.com",
+        "bank alert",
+        "payment received"
+      ]
+    }
+  },
+  "default_currency": "USD",
+  "home_currency": "LKR",
+  "blueocean_mcp_path": "D:/BlueOcean main/blueocean_mcp",
+  "gmail_mcp_path": "D:/tools/gmail-mcp-server"
+}

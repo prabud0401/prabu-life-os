@@ -1,0 +1,17 @@
+# Project-scoped MCP for Grok CLI
+# See knowledge/MCP-SETUP.md
+
+[mcp_servers.outlook]
+command = "node"
+args = ["D:/BlueOcean main/blueocean_mcp/mcps/outlook/dist/index.js"]
+enabled = true
+
+[mcp_servers.teams]
+command = "node"
+args = ["D:/BlueOcean main/blueocean_mcp/mcps/teams/dist/index.js"]
+enabled = true
+
+[mcp_servers.gmail-local]
+command = "node"
+args = ["D:/tools/gmail-mcp-server/dist/index.js"]
+enabled = true

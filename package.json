@@ -1,0 +1,17 @@
+{
+  "name": "prabu-life-os",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Personal finance MCP + API — Outlook/Gmail to Notion",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:shared": "npm run build -w @prabu-life-os/shared",
+    "build:mcp": "npm run build -w @prabu-life-os/mcp"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

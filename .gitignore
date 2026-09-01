@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+*.key
+*-tokens.json
+.DS_Store
+Thumbs.db
+*.log
+.npm/
+coverage/
+.turbo/
