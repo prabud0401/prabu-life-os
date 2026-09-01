@@ -14,6 +14,7 @@
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@prabu-life-os/shared": "*",
     "dotenv": "^16.4.5",
+    "googleapis": "^144.0.0",
     "isomorphic-fetch": "^3.0.0"
   },
   "devDependencies": {

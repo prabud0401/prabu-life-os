@@ -3,12 +3,14 @@ import { outlookTools, handleOutlookTool } from "./outlook";
 import { financeTools, handleFinanceTool } from "./finance";
 import { pmToolTools, handlePmToolTool } from "./pmtool";
 import { teamsTools, handleTeamsTool } from "./teams";
+import { gmailTools, handleGmailTool } from "./gmail";
 
 export const allTools: Tool[] = [
   ...outlookTools,
   ...financeTools,
   ...teamsTools,
   ...pmToolTools,
+  ...gmailTools,
 ];
 
 export async function handleToolCall(
@@ -35,6 +37,11 @@ export async function handleToolCall(
     return handlePmToolTool(name, args);
   }
 
+  // Gmail tools
+  if (gmailTools.some((t) => t.name === name)) {
+    return handleGmailTool(name, args);
+  }
+
   return {
     content: [{ type: "text", text: `Unknown tool: ${name}` }],
     isError: true,
@@ -45,4 +52,5 @@ export * from "./outlook";
 export * from "./finance";
 export * from "./pmtool";
 export * from "./teams";
+export * from "./gmail";
 

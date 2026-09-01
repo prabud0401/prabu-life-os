@@ -1,5 +1,10 @@
 import fs from "fs";
-import { getOAuth2Token, isDatabaseConfigured } from "@prabu-life-os/shared";
+import path from "path";
+import {
+  getOAuth2Token,
+  isDatabaseConfigured,
+  upsertOAuth2Token,
+} from "@prabu-life-os/shared";
 import { getGmailCredentialsPath } from "./config";
 import type { GmailCredentials } from "./types";
 
@@ -45,4 +50,18 @@ export async function getGmailCredentials(): Promise<GmailCredentials | null> {
 export async function isGmailAuthenticated(): Promise<boolean> {
   const creds = await getGmailCredentials();
   return Boolean(creds && (creds.refresh_token || creds.access_token));
+}
+
+export async function saveGmailCredentials(credentials: GmailCredentials): Promise<void> {
+  if (isDatabaseConfigured()) {
+    await upsertOAuth2Token(GMAIL_PROVIDER, GMAIL_USER_ID, credentials);
+    return;
+  }
+
+  const credPath = getGmailCredentialsPath();
+  const dir = path.dirname(credPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(credPath, JSON.stringify(credentials, null, 2));
 }
