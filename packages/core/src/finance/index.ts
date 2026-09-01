@@ -1,2 +1,3 @@
-// Finance module stub (Phase 1.6)
-export const financePlaceholder = "finance";
+export * from "./types";
+export * from "./parser";
+export * from "./service";

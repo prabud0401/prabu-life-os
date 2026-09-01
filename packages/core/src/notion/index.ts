@@ -1,2 +1,3 @@
-// Notion module stub (Phase 1.6)
-export const notionPlaceholder = "notion";
+export * from "./types";
+export * from "./config";
+export * from "./client";

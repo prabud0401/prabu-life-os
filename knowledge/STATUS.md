@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 1 (1.1–1.3 done, 1.4 next)  
+**Current phase**: Phase 1 (1.1–1.3, 1.6–1.8 done)  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Phase 1.4 Port Teams tools | Antigravity | teams in core + mcp |
+| Phase 1.10 Notion Live Sync | Antigravity / Grok | Requires `NOTION_TOKEN` in `.env` |
 
 ---
 
@@ -27,15 +27,19 @@
 - [x] **Phase 1.1**: Scaffold npm workspaces (`@prabu-life-os/shared`, `@prabu-life-os/core`, `@prabu-life-os/mcp`)
 - [x] **Phase 1.2**: Ported shared auth, KeyVault, OAuth2, Graph client, logger
 - [x] **Phase 1.3**: Ported Outlook service to `packages/core/outlook` & exposed via `packages/mcp` (list, get, search, folders)
+- [x] Committed Phase 1.1–1.3 to `feature/phase-1-scaffold`
+- [x] **Phase 1.6**: Wise email parser & Notion write client with deduplication in `packages/core/finance` & `packages/core/notion`
+- [x] **Phase 1.7**: Expose `sync_salary_to_notion` and `get_income_summary` tools via `@prabu-life-os/mcp`
+- [x] Verified parser against 31 historical transfers ($8,490.73 USD / 2,648,425.18 LKR parsed cleanly)
 - [x] Verified `npm run build` passes across all workspaces
 
 ---
 
-## Next up (Antigravity)
+## Next up (Antigravity / Grok / PM)
 
-1. Port Teams tools to `packages/core/teams` & expose via `packages/mcp` (Phase 1.4)
+1. Add `NOTION_TOKEN` to `.env` to execute live Notion sync (Phase 1.10)
 2. Add Gmail-local tools wrapper in `packages/core/gmail` (Phase 1.5)
-3. Implement `packages/core/finance` for Wise email parsing, dedup, and Notion sync (Phase 1.6)
+3. Port Teams tools to `packages/core/teams` (Phase 1.4, when unblocked by PM)
 
 ---
 
@@ -43,7 +47,7 @@
 
 | Blocker | Impact | Action |
 |---------|--------|--------|
-| `grok login` not run | Grok agent chat won't work | User runs `grok login` once |
+| `NOTION_TOKEN` not in `.env` | Live write to Notion DB pending | User adds `NOTION_TOKEN=<token>` to `.env` |
 
 ---
 
@@ -51,8 +55,8 @@
 
 | Metric | Target | Current |
 |--------|--------|---------|
-| Salary rows in Notion | 32+ | 4 (samples only) |
-| MCP tools working | outlook, teams, gmail, finance | outlook (4 tools built in monorepo) |
+| Salary rows in Notion | 32+ | 4 (samples; 31 ready to sync via MCP) |
+| MCP tools working | outlook, teams, gmail, finance | 6 tools (outlook: 4, finance: 2) |
 | Cloud deployed | Phase 3 | No |
 
 ---
