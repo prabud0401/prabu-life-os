@@ -4,8 +4,10 @@ import {
   getMicrosoftAuthUrl,
   isAuthenticated,
   pingDatabase,
+  upsertMsalTokenCache,
 } from "@prabu-life-os/shared";
 import { getOutlookAuthConfig, initOutlookConfig } from "@prabu-life-os/core";
+import { requireApiKey } from "../middleware/api-key";
 
 async function ensureOutlookConfig() {
   await initOutlookConfig();
@@ -42,6 +44,38 @@ export function registerAuthRoutes(app: Express): void {
       res.status(500).send(`Microsoft auth setup failed: ${(err as Error).message}`);
     }
   });
+
+  /**
+   * Push a local MSAL token cache (e.g. ~/.blueocean-mcp/outlook-tokens.json)
+   * into Railway Postgres — no Azure redirect URI change required.
+   */
+  app.post(
+    "/auth/microsoft/bridge",
+    requireApiKey,
+    async (req: Request, res: Response) => {
+      const cache = req.body?.cache;
+      const mcpName =
+        typeof req.body?.mcpName === "string" && req.body.mcpName.trim()
+          ? req.body.mcpName.trim()
+          : "outlook";
+
+      if (typeof cache !== "string" || !cache.trim()) {
+        res.status(400).json({
+          error: "Body must include cache (MSAL serialized token cache string)",
+        });
+        return;
+      }
+
+      try {
+        await upsertMsalTokenCache(mcpName, cache);
+        const config = await ensureOutlookConfig();
+        const outlook = await isAuthenticated(config).catch(() => false);
+        res.json({ ok: true, mcpName, outlook });
+      } catch (err) {
+        res.status(500).json({ error: (err as Error).message });
+      }
+    }
+  );
 
   app.get("/auth/microsoft/callback", async (req: Request, res: Response) => {
     const error = req.query.error as string | undefined;

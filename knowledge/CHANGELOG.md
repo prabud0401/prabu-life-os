@@ -61,6 +61,15 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-3-railway`
 - **Agent**: Cursor PM
 
+- **Completed** Phase 3 Deploy & Bridge Auth: Live Railway deployment + Outlook token bridge
+  - Implemented `POST /auth/microsoft/bridge` in `@prabu-life-os/mcp` and `upsertMsalTokenCache` in `@prabu-life-os/shared`
+  - Created `scripts/auth-outlook-bridge.js` & `scripts/auth-outlook-bridge.ps1` with `npm run auth:outlook:bridge`
+  - Streamable HTTP `/sse` and legacy `/sse/legacy` supported for Grok & remote clients
+  - Live verified `https://prabu-life-os-production.up.railway.app/auth/status`: `"outlook": true`, `"database": true`
+  - Tested `npm run build` and `npm test` (5/5 passing)
+- **Branch**: `feature/phase-3-cloud-bridge`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries

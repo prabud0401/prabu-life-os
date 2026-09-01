@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: Phase 3 code ready — deploy to Railway (`knowledge/RAILWAY.md`)  
+**Current phase**: Phase 3 completed — live on Railway (`https://prabu-life-os-production.up.railway.app`)  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,7 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Deploy Phase 3 to Railway | User | Postgres ✅ — add app service per `knowledge/RAILWAY.md` |
+| Phase 4 REST API / Phase 1.4 Teams | Antigravity | Next milestone |
 
 ---
 
@@ -41,15 +41,18 @@
 - [x] **Merged** `feature/phase-2-polish` → `main` via [PR #2](https://github.com/prabud0401/prabu-life-os/pull/2)
 - [x] **Phase 3 (code)**: Postgres token store, HTTP MCP + API key, Microsoft OAuth routes, Dockerfile, `railway.toml`
 - [x] Railway Postgres tables: `oauth_tokens`, `sync_log`
+- [x] **Phase 3 deploy**: Live app service deployed on Railway (`https://prabu-life-os-production.up.railway.app`)
+- [x] **Outlook token bridge**: `POST /auth/microsoft/bridge` + `scripts/auth-outlook-bridge.ps1` (`npm run auth:outlook:bridge`)
+- [x] Cloud auth status verified: `"outlook": true`, `"database": true` on `/auth/status`
+- [x] Remote MCP endpoint active: `https://prabu-life-os-production.up.railway.app/sse` with `Authorization: Bearer ${PRABU_MCP_API_KEY}`
 
 ---
 
 ## Next up (Antigravity / Grok / PM)
 
-1. **You**: Deploy app to Railway — follow `knowledge/RAILWAY.md`
-2. Azure: add redirect URI for `/auth/microsoft/callback`
-3. Connect Outlook once via `https://YOUR-APP/auth/microsoft`
-4. Grok remote MCP config with `PRABU_MCP_API_KEY`
+1. Connect Grok CLI to remote MCP server via `.grok/config.toml`
+2. Implement Phase 4 REST API (`packages/api`) or port Phase 1.4 Teams tools
+3. Add automated sync cron / background trigger
 
 ---
 
@@ -67,7 +70,7 @@
 | Income totals | $8,490.73 / 2.65M LKR | ✅ $8,490.73 / 2,648,425.18 LKR |
 | MCP tools working | outlook, teams, gmail, finance | 6 via `prabu-life-os` MCP |
 | Parser tests | passing | 5/5 |
-| Cloud deployed | Phase 3 | Postgres ✅ — app deploy pending |
+| Cloud deployed | Phase 3 | ✅ Live on Railway (App + Postgres + Bridge Auth) |
 
 ---
 

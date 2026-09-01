@@ -46,10 +46,11 @@
 
 - [x] PostgreSQL token store (`DATABASE_URL` → `oauth_tokens`, provider `msal`)
 - [x] Cloud OAuth routes (`/auth/microsoft`, `/auth/microsoft/callback`)
+- [x] Local token bridge (`POST /auth/microsoft/bridge` + `scripts/auth-outlook-bridge.ps1`)
 - [x] `MCP_MODE=http` + API key on `/sse` and `/messages`
 - [x] Dockerfile + `railway.toml`
-- [ ] Deploy app service to Railway (user: see `knowledge/RAILWAY.md`)
-- [ ] Grok + Antigravity connect via remote URL
+- [x] Deploy app service to Railway (`https://prabu-life-os-production.up.railway.app`)
+- [x] Grok + Antigravity connect via remote URL (`/sse`)
 
 **Cost**: ~$8–12/mo
 
@@ -57,7 +58,7 @@
 
 ## Phase 3 deploy guide
 
-See **`knowledge/RAILWAY.md`** for step-by-step Railway setup.
+See **`knowledge/RAILWAY.md`** for step-by-step Railway setup and bridge auth.
 
 ---
 
@@ -80,7 +81,7 @@ See **`knowledge/RAILWAY.md`** for step-by-step Railway setup.
 
 ## Current phase
 
-**Current phase**: Phase 3 code ready — deploy to Railway (see `knowledge/RAILWAY.md`)
+**Current phase**: Phase 3 completed — ready for Phase 4 REST API / Phase 1.4 Teams / 1.5 Gmail
 
 ## PM checkpoints
 
