@@ -1,7 +1,7 @@
 # Status Board
 
 **Last updated**: 2026-09-01  
-**Current phase**: PM Tool Proxy, Gmail Bridge & Phase 4 REST API implemented  
+**Current phase**: Phase 4 complete — merged to `main`, deployed Railway  
 **PM**: Cursor agent  
 **GitHub**: https://github.com/prabud0401/prabu-life-os  
 **Local path**: `C:\Users\prabu\Desktop\prabu-life-os`
@@ -12,7 +12,8 @@
 
 | Task | Owner | Notes |
 |------|-------|-------|
-| Merge feature/pm-tool-proxy to main | PM / User | PM proxy, Gmail bridge, REST API & tests ready |
+| Teams cloud token refresh | User | Run local Teams auth, then `npm run auth:token:bridge -- --teams` |
+| PM Tool token on Railway | User | `railway variables --set PM_MCP_TOKEN=...` |
 
 ---
 
