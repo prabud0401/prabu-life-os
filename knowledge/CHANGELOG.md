@@ -53,6 +53,14 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-2-polish` (merged via PR #2)
 - **Agent**: Cursor PM
 
+- **Implemented** Phase 3 (code): Railway + Postgres cloud scaffold
+  - Postgres MSAL token cache when `DATABASE_URL` is set
+  - HTTP MCP with API key auth on `/sse` and `/messages`
+  - OAuth routes: `/auth/microsoft`, `/auth/microsoft/callback`, `/auth/status`
+  - `Dockerfile`, `railway.toml`, `migrations/001_initial.sql`, `knowledge/RAILWAY.md`
+- **Branch**: `feature/phase-3-railway`
+- **Agent**: Cursor PM
+
 ---
 
 ## Template for new entries

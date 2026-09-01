@@ -1,4 +1,4 @@
-import { logger } from "@prabu-life-os/shared";
+import { logger, logSyncJob } from "@prabu-life-os/shared";
 import { getOutlookGraphClient } from "../outlook/service";
 import {
   getExistingTransferIds,
@@ -135,7 +135,7 @@ export async function syncSalaryToNotion(
     }
   }
 
-  return {
+  const result = {
     totalFound: allTransfers.length,
     newTransfers: newTransfers.length,
     skippedCount,
@@ -144,6 +144,17 @@ export async function syncSalaryToNotion(
     items: newTransfers,
     dryRun,
   };
+
+  if (!dryRun) {
+    const status = errors.length > 0 ? "error" : "success";
+    const message =
+      errors.length > 0
+        ? errors.join("; ")
+        : `inserted=${insertedCount}, skipped=${skippedCount}`;
+    await logSyncJob("sync_salary_to_notion", status, message, insertedCount);
+  }
+
+  return result;
 }
 
 function buildCanonicalTransferMap(

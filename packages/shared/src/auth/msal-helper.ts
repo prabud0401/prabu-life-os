@@ -7,7 +7,7 @@ import {
   type AuthorizationUrlRequest,
   type AuthorizationCodeRequest,
 } from "@azure/msal-node";
-import { createFileTokenCache } from "./token-cache";
+import { createTokenCache } from "./token-cache";
 
 export interface AuthConfig {
   clientId: string;
@@ -17,8 +17,14 @@ export interface AuthConfig {
   mcpName: string;
 }
 
-const AUTH_CALLBACK_PORT = 3001;
-const REDIRECT_URI = `http://localhost:${AUTH_CALLBACK_PORT}/callback`;
+const AUTH_CALLBACK_PORT = parseInt(process.env.OAUTH_CALLBACK_PORT || "3001", 10);
+
+export function getOAuthRedirectUri(): string {
+  return (
+    process.env.OAUTH_REDIRECT_URI ||
+    `http://localhost:${AUTH_CALLBACK_PORT}/callback`
+  );
+}
 
 function createPublicApp(config: AuthConfig): PublicClientApplication {
   return new PublicClientApplication({
@@ -26,7 +32,7 @@ function createPublicApp(config: AuthConfig): PublicClientApplication {
       clientId: config.clientId,
       authority: `https://login.microsoftonline.com/${config.tenantId}`,
     },
-    cache: { cachePlugin: createFileTokenCache(config.mcpName) },
+    cache: { cachePlugin: createTokenCache(config.mcpName) },
   });
 }
 
@@ -37,7 +43,7 @@ function createConfidentialApp(config: AuthConfig): ConfidentialClientApplicatio
       authority: `https://login.microsoftonline.com/${config.tenantId}`,
       clientSecret: config.clientSecret!,
     },
-    cache: { cachePlugin: createFileTokenCache(config.mcpName) },
+    cache: { cachePlugin: createTokenCache(config.mcpName) },
   });
 }
 
@@ -56,9 +62,10 @@ export async function runDeviceCodeAuth(config: AuthConfig): Promise<void> {
 export async function runAuthCodeFlow(config: AuthConfig): Promise<void> {
   const cca = createConfidentialApp(config);
 
+  const redirectUri = getOAuthRedirectUri();
   const authUrl = await cca.getAuthCodeUrl({
     scopes: config.scopes,
-    redirectUri: REDIRECT_URI,
+    redirectUri,
   } as AuthorizationUrlRequest);
 
   process.stderr.write(
@@ -83,7 +90,7 @@ export async function runAuthCodeFlow(config: AuthConfig): Promise<void> {
         if (code) {
           await cca.acquireTokenByCode({
             code,
-            redirectUri: REDIRECT_URI,
+            redirectUri: getOAuthRedirectUri(),
             scopes: config.scopes,
           } as AuthorizationCodeRequest);
           res.writeHead(200, { "Content-Type": "text/html" });
@@ -125,4 +132,36 @@ export async function getAccessToken(config: AuthConfig): Promise<string | null>
 
 export async function isAuthenticated(config: AuthConfig): Promise<boolean> {
   return (await getAccessToken(config)) !== null;
+}
+
+export async function getMicrosoftAuthUrl(config: AuthConfig): Promise<string> {
+  if (!config.clientSecret) {
+    throw new Error(
+      "OUTLOOK_CLIENT_SECRET is required for web OAuth on Railway"
+    );
+  }
+
+  const cca = createConfidentialApp(config);
+  return cca.getAuthCodeUrl({
+    scopes: config.scopes,
+    redirectUri: getOAuthRedirectUri(),
+  } as AuthorizationUrlRequest);
+}
+
+export async function acquireMicrosoftTokenByCode(
+  config: AuthConfig,
+  code: string
+): Promise<void> {
+  if (!config.clientSecret) {
+    throw new Error(
+      "OUTLOOK_CLIENT_SECRET is required for web OAuth on Railway"
+    );
+  }
+
+  const cca = createConfidentialApp(config);
+  await cca.acquireTokenByCode({
+    code,
+    redirectUri: getOAuthRedirectUri(),
+    scopes: config.scopes,
+  } as AuthorizationCodeRequest);
 }
