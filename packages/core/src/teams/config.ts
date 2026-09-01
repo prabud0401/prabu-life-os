@@ -28,10 +28,12 @@ export async function initTeamsConfig(): Promise<void> {
     tenantId,
     clientSecret: process.env.OUTLOOK_CLIENT_SECRET,
     scopes: [
+      "https://graph.microsoft.com/User.Read",
+      "https://graph.microsoft.com/Team.ReadBasic.All",
+      "https://graph.microsoft.com/Channel.ReadBasic.All",
       "https://graph.microsoft.com/ChannelMessage.Read.All",
       "https://graph.microsoft.com/Chat.Read",
-      "https://graph.microsoft.com/Team.ReadBasic.All",
-      "https://graph.microsoft.com/User.Read",
+      "https://graph.microsoft.com/ChatMessage.Read",
     ],
     mcpName: "teams",
   };

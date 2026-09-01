@@ -18,7 +18,8 @@
     "auth:outlook": "npm run auth:outlook -w @prabu-life-os/mcp",
     "auth:outlook:bridge": "node scripts/auth-outlook-bridge.js",
     "auth:gmail:bridge": "node scripts/auth-gmail-bridge.js",
-    "auth:token:bridge": "node scripts/auth-token-bridge.js --all"
+    "auth:token:bridge": "node scripts/auth-token-bridge.js",
+    "auth:teams:local": "node \"D:/BlueOcean main/blueocean_mcp/mcps/teams/dist/auth-cli.js\""
   },
   "engines": {
     "node": ">=20.0.0"
