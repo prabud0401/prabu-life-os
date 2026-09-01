@@ -5,6 +5,7 @@ import { financeRouter } from "./routes/finance";
 import { financeIntelligenceRouter } from "./routes/finance-intelligence";
 import { transactionsRouter } from "./routes/transactions";
 import { pmRouter } from "./routes/pm";
+import { assistantRouter } from "./routes/assistant";
 
 export function createApiRouter(): Router {
   const router = Router();
@@ -15,6 +16,7 @@ export function createApiRouter(): Router {
   router.use("/finance/intelligence", financeIntelligenceRouter);
   router.use("/transactions", transactionsRouter);
   router.use("/pm", pmRouter);
+  router.use("/assistant", assistantRouter);
 
   return router;
 }

@@ -5,10 +5,16 @@ export type TransactionType =
   | "INTERNAL_TRANSFER"
   | "BROKER_INWARD"
   | "BROKER_OUTWARD"
+  | "BROKER_PARTNER_PAYOUT"
   | "PERSONAL_LIVING_EXPENSE"
   | "BANKING_FEE"
   | "CARD_REPAYMENT"
   | "CARD_POS_SPEND"
+  | "ATM_WITHDRAWAL"
+  | "LOAN_GIVEN"
+  | "LOAN_RECEIVED"
+  | "LOAN_REPAYMENT"
+  | "PAWN_PAYMENT"
   | "UNCATEGORIZED";
 
 export type DataSource =
@@ -44,9 +50,18 @@ export interface FinancialSummary {
   bankingFeesLkr: number;
   brokerInwardLkr: number;
   brokerOutwardLkr: number;
+  brokerPartnerPayoutLkr: number;
+  brokerNetPositionLkr: number;
   selfTransfersLkr: number;
+  pairedSelfTransfersLkr: number;
+  duplicateTransfersExcludedLkr: number;
   cardRepaymentsLkr: number;
   cardPosSpendLkr: number;
+  atmWithdrawalsLkr: number;
+  loansGivenLkr: number;
+  loansReceivedLkr: number;
+  loanRepaymentsLkr: number;
+  pawnPaymentsLkr: number;
   netPersonalSavingsLkr: number;
   transactionCount: number;
   periodStart?: string;

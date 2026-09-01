@@ -11,6 +11,7 @@
     "test": "node --test test/api.test.js"
   },
   "dependencies": {
+    "@cursor/sdk": "^1.0.30",
     "@prabu-life-os/core": "*",
     "@prabu-life-os/shared": "*",
     "dotenv": "^16.4.5",

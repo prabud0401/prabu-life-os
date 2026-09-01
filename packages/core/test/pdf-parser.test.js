@@ -45,7 +45,7 @@ Date       Value Date Description              Debit       Credit      Balance
     assert.equal(rows[1].direction, "debit");
     assert.equal(rows[1].transactionType, "PERSONAL_LIVING_EXPENSE");
 
-    // Row 3: Broker outward
+    // Row 3: Broker outward (trf to udaya in broker context)
     assert.equal(rows[2].date, "2025-08-20");
     assert.equal(rows[2].amountLkr, 50000.00);
     assert.equal(rows[2].direction, "debit");

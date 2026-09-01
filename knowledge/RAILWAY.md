@@ -67,6 +67,8 @@ App service → **Variables** → **Add Variable Reference**:
 | `GMAIL_OAUTH_KEYS_B64` | Base64 of `gcp-oauth.keys.json` — required for Gmail API calls on Railway |
 | `PM_MCP_TOKEN` | PM Tool MCP proxy auth token |
 | `PM_TOOL_BASE_URL` | PM Tool MCP HTTP endpoint (default `https://pm-tool.blueoceansp.dev/api/mcp`) |
+| `CURSOR_API_KEY` | Cursor API key (`crsr_...`) for mobile AI assistant (`/api/assistant/chat`) |
+| `CURSOR_MODEL` | Cursor model id (default `composer-2.5`) |
 | `JWT_SECRET` | JWT signing for mobile auth (optional; falls back to API key) |
 | `NOTION_DATABASE_ID` | Notion income database (optional; has default) |
 | `MCP_PUBLIC_URL` | Public MCP URL for Gemini web OAuth |

@@ -205,15 +205,26 @@ async function main() {
   try {
     const raw = await callTool(client, "list_my_tasks", { limit: 5 });
     const parsed = JSON.parse(raw);
-    const items = parsed?.items || parsed;
-    taskId = items?.[0]?.id;
-    pass("list_my_tasks", `${items?.length ?? 0} tasks`);
+    const tasks = Array.isArray(parsed)
+      ? parsed
+      : parsed?.tasks || parsed?.items || [];
+    taskId = tasks?.[0]?.id ?? tasks?.[0]?.task_id;
+    pass("list_my_tasks", `${tasks.length} tasks`);
   } catch (err) {
     fail("list_my_tasks", err.message);
   }
-  await testTool(client, "search_tasks", { query: "study", limit: 3 });
+  try {
+    const raw = await callTool(client, "search_tasks", { query: "study", limit: 3 });
+    const parsed = JSON.parse(raw);
+    const tasks = parsed?.tasks || parsed?.items || [];
+    taskId = taskId ?? tasks?.[0]?.id ?? tasks?.[0]?.task_id;
+    const preview = raw.replace(/\s+/g, " ").slice(0, 80);
+    pass("search_tasks", preview);
+  } catch (err) {
+    fail("search_tasks", err.message.slice(0, 200));
+  }
   if (taskId) {
-    await testTool(client, "get_task", { taskId });
+    await testTool(client, "get_task", { taskId: String(taskId) });
   } else {
     fail("get_task", "skipped — no task id");
   }

@@ -1,4 +1,5 @@
 import { applyClassificationToTransaction } from "../classifier";
+import { extractAccountNumbersFromText, findRegisteredAccountId } from "../accounts";
 import type { EmailIngestInput, FinancialTransaction } from "../types";
 
 function parseAmount(text: string, pattern: RegExp): number | null {
@@ -13,6 +14,31 @@ function parseToIsoDate(value?: string): string {
   const parsed = new Date(value);
   if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().split("T")[0];
   return new Date().toISOString().split("T")[0];
+}
+
+function extractFundTransferParties(body: string): {
+  accountId?: string;
+  counterparty?: string;
+} {
+  const accountIds = extractAccountNumbersFromText(body);
+  const fromMatch = body.match(/From Account[:\s]+(\d[\d\s]+)/i);
+  const toMatch =
+    body.match(/To Account[:\s]+(\d[\d\s]+)/i) ||
+    body.match(/Beneficiary Account[:\s]+(\d[\d\s]+)/i);
+  const beneficiaryMatch = body.match(/Beneficiary[:\s]+([^\n\r]+)/i);
+
+  let accountId = fromMatch ? findRegisteredAccountId(fromMatch[1]) : undefined;
+  let counterparty = toMatch ? findRegisteredAccountId(toMatch[1]) : undefined;
+
+  if (!accountId && accountIds.length > 0) accountId = accountIds[0];
+  if (!counterparty && accountIds.length > 1) counterparty = accountIds[1];
+  if (!counterparty && beneficiaryMatch) {
+    const benText = beneficiaryMatch[1].trim();
+    const benAccount = findRegisteredAccountId(benText);
+    counterparty = benAccount || benText.slice(0, 80);
+  }
+
+  return { accountId, counterparty };
 }
 
 export function parseEmailNotification(input: EmailIngestInput): FinancialTransaction[] {
@@ -49,6 +75,8 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
 
   if (subject.includes("Bill Payment")) {
     const amt = parseAmount(body, /Amount LKR:\s*([\d,]+\.\d{2})/i);
+    const accountMatch = body.match(/From Account[:\s]+(\d[\d\s]+)/i);
+    const accountId = accountMatch ? findRegisteredAccountId(accountMatch[1]) : undefined;
     if (amt) {
       results.push(
         applyClassificationToTransaction({
@@ -59,6 +87,7 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
           transactionType: "PERSONAL_LIVING_EXPENSE",
           description: subject,
           source: "gmail",
+          accountId,
           metadata: baseMeta,
         })
       );
@@ -69,6 +98,7 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
   if (subject.includes("Card Payment")) {
     const amt = parseAmount(body, /Amount LKR:\s*([\d,]+\.\d{2})/i);
     const fee = parseAmount(body, /Fees.*LKR:\s*([\d,]+\.\d{2})/i) ?? 0;
+    const { accountId } = extractFundTransferParties(body);
     if (amt) {
       results.push(
         applyClassificationToTransaction({
@@ -79,7 +109,8 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
           transactionType: "CARD_REPAYMENT",
           description: subject,
           source: "gmail",
-          accountId: "4544885475",
+          accountId: accountId || "4544885475",
+          counterparty: "4544885475",
           feeLkr: fee,
           metadata: baseMeta,
         })
@@ -104,6 +135,7 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
   if (subject.includes("Fund transfer")) {
     const amt = parseAmount(body, /Amount LKR:\s*([\d,]+\.\d{2})/i);
     const fee = parseAmount(body, /Fees.*LKR:\s*([\d,]+\.\d{2})/i) ?? 0;
+    const { accountId, counterparty } = extractFundTransferParties(body);
     if (amt) {
       const classified = applyClassificationToTransaction({
         externalId: input.messageId ? `email:${input.messageId}` : undefined,
@@ -113,6 +145,8 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
         transactionType: "UNCATEGORIZED",
         description: body.slice(0, 200) || subject,
         source: "gmail",
+        accountId,
+        counterparty,
         feeLkr: fee,
         metadata: baseMeta,
       });

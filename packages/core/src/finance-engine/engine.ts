@@ -6,6 +6,11 @@ import { parseSmsAlert } from "./parsers/sms";
 import { listTransactions, saveTransactions } from "./store";
 import { buildScenarioAnalysis } from "./scenarios";
 import { formatReconciliationMarkdown } from "./report";
+import {
+  isExcludedFromSummary,
+  isPairedInternalTransfer,
+  prepareTransactionsForSummary,
+} from "./transfer-dedup";
 import type {
   EmailIngestInput,
   FinancialSummary,
@@ -26,6 +31,8 @@ export function summarizeTransactions(
   if (options.fromDate) filtered = filtered.filter((t) => t.date >= options.fromDate!);
   if (options.toDate) filtered = filtered.filter((t) => t.date <= options.toDate!);
 
+  const prepared = prepareTransactionsForSummary(filtered);
+
   const summary: FinancialSummary = {
     salaryUsd: 0,
     salaryLkr: 0,
@@ -33,16 +40,30 @@ export function summarizeTransactions(
     bankingFeesLkr: 0,
     brokerInwardLkr: 0,
     brokerOutwardLkr: 0,
+    brokerPartnerPayoutLkr: 0,
+    brokerNetPositionLkr: 0,
     selfTransfersLkr: 0,
+    pairedSelfTransfersLkr: 0,
+    duplicateTransfersExcludedLkr: 0,
     cardRepaymentsLkr: 0,
     cardPosSpendLkr: 0,
+    atmWithdrawalsLkr: 0,
+    loansGivenLkr: 0,
+    loansReceivedLkr: 0,
+    loanRepaymentsLkr: 0,
+    pawnPaymentsLkr: 0,
     netPersonalSavingsLkr: 0,
-    transactionCount: filtered.length,
+    transactionCount: prepared.filter((t) => !isExcludedFromSummary(t)).length,
     periodStart: filtered.length ? filtered[filtered.length - 1].date : options.fromDate,
     periodEnd: filtered.length ? filtered[0].date : options.toDate,
   };
 
-  for (const tx of filtered) {
+  for (const tx of prepared) {
+    if (isExcludedFromSummary(tx)) {
+      summary.duplicateTransfersExcludedLkr += tx.amountLkr;
+      continue;
+    }
+
     const amount = tx.amountLkr;
     switch (tx.transactionType) {
       case "SALARY_INFLOW":
@@ -50,7 +71,6 @@ export function summarizeTransactions(
         summary.salaryUsd += tx.amountUsd || 0;
         break;
       case "PERSONAL_LIVING_EXPENSE":
-      case "CARD_POS_SPEND":
         summary.livingExpensesLkr += amount;
         break;
       case "BANKING_FEE":
@@ -62,11 +82,37 @@ export function summarizeTransactions(
       case "BROKER_OUTWARD":
         summary.brokerOutwardLkr += amount;
         break;
-      case "INTERNAL_TRANSFER":
-        summary.selfTransfersLkr += amount;
+      case "BROKER_PARTNER_PAYOUT":
+        summary.brokerPartnerPayoutLkr += amount;
+        summary.brokerOutwardLkr += amount;
         break;
-      case "CARD_REPAYMENT":
-        summary.cardRepaymentsLkr += amount;
+      case "INTERNAL_TRANSFER":
+        if (isPairedInternalTransfer(tx)) {
+          summary.pairedSelfTransfersLkr += amount;
+        } else {
+          summary.selfTransfersLkr += amount;
+        }
+        break;
+      case "CARD_POS_SPEND":
+        summary.cardPosSpendLkr += amount;
+        summary.livingExpensesLkr += amount;
+        break;
+      case "ATM_WITHDRAWAL":
+        summary.atmWithdrawalsLkr += amount;
+        summary.livingExpensesLkr += amount;
+        break;
+      case "LOAN_GIVEN":
+        summary.loansGivenLkr += amount;
+        break;
+      case "LOAN_RECEIVED":
+        summary.loansReceivedLkr += amount;
+        break;
+      case "LOAN_REPAYMENT":
+        summary.loanRepaymentsLkr += amount;
+        break;
+      case "PAWN_PAYMENT":
+        summary.pawnPaymentsLkr += amount;
+        summary.livingExpensesLkr += amount;
         break;
       default:
         break;
@@ -80,8 +126,20 @@ export function summarizeTransactions(
   summary.bankingFeesLkr = round2(summary.bankingFeesLkr);
   summary.brokerInwardLkr = round2(summary.brokerInwardLkr);
   summary.brokerOutwardLkr = round2(summary.brokerOutwardLkr);
+  summary.brokerPartnerPayoutLkr = round2(summary.brokerPartnerPayoutLkr);
+  summary.brokerNetPositionLkr = round2(
+    summary.brokerInwardLkr - summary.brokerOutwardLkr
+  );
   summary.selfTransfersLkr = round2(summary.selfTransfersLkr);
+  summary.pairedSelfTransfersLkr = round2(summary.pairedSelfTransfersLkr / 2);
+  summary.duplicateTransfersExcludedLkr = round2(summary.duplicateTransfersExcludedLkr);
   summary.cardRepaymentsLkr = round2(summary.cardRepaymentsLkr);
+  summary.cardPosSpendLkr = round2(summary.cardPosSpendLkr);
+  summary.atmWithdrawalsLkr = round2(summary.atmWithdrawalsLkr);
+  summary.loansGivenLkr = round2(summary.loansGivenLkr);
+  summary.loansReceivedLkr = round2(summary.loansReceivedLkr);
+  summary.loanRepaymentsLkr = round2(summary.loanRepaymentsLkr);
+  summary.pawnPaymentsLkr = round2(summary.pawnPaymentsLkr);
   summary.netPersonalSavingsLkr = round2(
     summary.salaryLkr - summary.livingExpensesLkr - summary.bankingFeesLkr
   );
@@ -142,6 +200,7 @@ export async function buildReconciliationReport(options: {
     toDate: options.toDate,
   });
 
+  const prepared = prepareTransactionsForSummary(transactions);
   const summary = summarizeTransactions(transactions, options);
 
   if (options.includeNotionSalary !== false && summary.salaryLkr === 0) {
@@ -152,19 +211,22 @@ export async function buildReconciliationReport(options: {
       });
       summary.salaryLkr = income.totalLkr;
       summary.salaryUsd = income.totalUsd;
+      summary.netPersonalSavingsLkr = round2(
+        summary.salaryLkr - summary.livingExpensesLkr - summary.bankingFeesLkr
+      );
     } catch {
       // keep ledger-only summary
     }
   }
 
   const scenarios = buildScenarioAnalysis(summary);
-  const markdown = formatReconciliationMarkdown(summary, scenarios, transactions);
+  const markdown = formatReconciliationMarkdown(summary, scenarios, prepared);
 
   return {
     generatedAt: new Date().toISOString(),
     summary,
     scenarios,
-    transactions,
+    transactions: prepared,
     markdown,
   };
 }
