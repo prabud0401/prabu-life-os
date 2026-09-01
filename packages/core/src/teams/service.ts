@@ -88,11 +88,13 @@ export async function listChannelMessages(
   const client = await getTeamsGraphClient();
   const top = Math.min(Number(count) || 10, 50);
   const response = await client
-    .api(
-      `/teams/${teamId}/channels/${channelId}/messages?$top=${top}&$orderby=createdDateTime desc`
-    )
+    .api(`/teams/${teamId}/channels/${channelId}/messages?$top=${top}`)
     .get();
-  return (response.value || []).map(mapMessage);
+
+  const messages = (response.value || []).map(mapMessage);
+  return messages.sort((a: MessageSummary, b: MessageSummary) =>
+    b.createdAt.localeCompare(a.createdAt)
+  );
 }
 
 export async function listChats(count = 20): Promise<ChatSummary[]> {
@@ -124,7 +126,11 @@ export async function listChatMessages(
   const client = await getTeamsGraphClient();
   const top = Math.min(Number(count) || 20, 50);
   const response = await client
-    .api(`/me/chats/${chatId}/messages?$top=${top}&$orderby=createdDateTime desc`)
+    .api(`/me/chats/${chatId}/messages?$top=${top}`)
     .get();
-  return (response.value || []).map(mapMessage);
+
+  const messages = (response.value || []).map(mapMessage);
+  return messages.sort((a: MessageSummary, b: MessageSummary) =>
+    b.createdAt.localeCompare(a.createdAt)
+  );
 }

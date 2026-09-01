@@ -1,8 +1,14 @@
 import type { PmToolConfig } from "./types";
 
 export function getPmToolConfig(): PmToolConfig {
+  const configured =
+    process.env.PM_TOOL_BASE_URL ||
+    process.env.PM_TOOL_MCP_URL ||
+    "https://pm-tool.blueoceansp.dev/api/mcp";
+
   return {
-    baseUrl: process.env.PM_TOOL_BASE_URL || "https://pm.blueoceansp.ai/api",
+    baseUrl: configured,
+    mcpUrl: configured,
     token: process.env.PM_MCP_TOKEN,
   };
 }

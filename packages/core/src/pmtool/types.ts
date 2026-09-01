@@ -24,5 +24,6 @@ export interface PmTaskFilter {
 
 export interface PmToolConfig {
   baseUrl: string;
+  mcpUrl?: string;
   token?: string;
 }

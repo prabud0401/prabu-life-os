@@ -22,7 +22,7 @@ pmRouter.get("/health", (_req: Request, res: Response) => {
     status: "ok",
     service: "pm-tool-proxy",
     configured,
-    baseUrl: config.baseUrl || null,
+    baseUrl: config.mcpUrl || config.baseUrl || null,
     hasToken: Boolean(config.token),
     timestamp: new Date().toISOString(),
   });
