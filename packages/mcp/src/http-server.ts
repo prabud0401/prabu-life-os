@@ -5,7 +5,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from "@modelcontextprotocol/sdk/types.js";
-import { logger, pingDatabase } from "@prabu-life-os/shared";
+import { logger, pingDatabase, ensureFinancialTransactionsTable } from "@prabu-life-os/shared";
 import { allTools, handleToolCall } from "./tools";
 import { requireApiKey } from "./middleware/api-key";
 import { requireMcpAuth } from "./middleware/mcp-auth";
@@ -36,6 +36,13 @@ export async function startHttpServer(port: number): Promise<void> {
   const app: Express = express();
 
   app.use(express.json());
+
+  if (process.env.DATABASE_URL) {
+    const migrated = await ensureFinancialTransactionsTable();
+    if (migrated) {
+      logger.info("Financial transactions schema ready");
+    }
+  }
 
   app.get("/health", async (_req, res) => {
     const database = await pingDatabase().catch(() => false);

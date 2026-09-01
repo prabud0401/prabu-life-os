@@ -29,3 +29,7 @@ export {
   getOAuth2Token,
   hasOAuthToken,
 } from "./db/oauth-tokens";
+export {
+  ensureFinancialTransactionsTable,
+  hasFinancialTransactionsTable,
+} from "./db/migrate";

@@ -5,6 +5,7 @@ import {
   ingestSmsAlert,
   REGISTERED_ACCOUNTS,
   runFinancialReconciliation,
+  syncFinanceEmailsFromGmail,
 } from "@prabu-life-os/core";
 
 export const runFinancialReconciliationTool: Tool = {
@@ -80,12 +81,26 @@ export const listRegisteredAccountsTool: Tool = {
   inputSchema: { type: "object", properties: {} },
 };
 
+export const syncFinanceEmailsFromGmailTool: Tool = {
+  name: "sync_finance_emails_from_gmail",
+  description:
+    "Search Gmail for People's Bank bill payments, card payments, fund transfers, and Wise salary emails; parse and store them in the financial intelligence ledger.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      maxPerQuery: { type: "number", description: "Max messages per search query (default 15)" },
+      since: { type: "string", description: "Only emails after YYYY-MM-DD" },
+    },
+  },
+};
+
 export const financeIntelligenceTools: Tool[] = [
   runFinancialReconciliationTool,
   ingestSmsAlertTool,
   ingestFinanceEmailTool,
   classifyTransactionTool,
   listRegisteredAccountsTool,
+  syncFinanceEmailsFromGmailTool,
 ];
 
 export async function handleFinanceIntelligenceTool(
@@ -136,6 +151,14 @@ export async function handleFinanceIntelligenceTool(
         return {
           content: [{ type: "text", text: JSON.stringify(REGISTERED_ACCOUNTS, null, 2) }],
         };
+      }
+      case "sync_finance_emails_from_gmail": {
+        const result = await syncFinanceEmailsFromGmail({
+          maxPerQuery:
+            args.maxPerQuery !== undefined ? Number(args.maxPerQuery) : undefined,
+          since: args.since as string | undefined,
+        });
+        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
       }
       default:
         return {
