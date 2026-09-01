@@ -61,7 +61,12 @@ async function uploadLocalToken() {
     );
   }
 
-  const cache = fs.readFileSync(CACHE_FILE, "utf8").trim();
+  const teamsCacheFile = path.join(os.homedir(), ".blueocean-mcp", "teams-tokens.json");
+  let cache = fs.readFileSync(CACHE_FILE, "utf8").trim();
+  if (!cache && fs.existsSync(teamsCacheFile)) {
+    console.warn("Outlook cache empty — falling back to teams token cache");
+    cache = fs.readFileSync(teamsCacheFile, "utf8").trim();
+  }
   if (!cache) {
     throw new Error("Local token file is empty");
   }
@@ -78,6 +83,23 @@ async function uploadLocalToken() {
   });
 
   console.log("Bridge response:", JSON.stringify(result, null, 2));
+
+  if (!result.outlook && fs.existsSync(teamsCacheFile)) {
+    const teamsCache = fs.readFileSync(teamsCacheFile, "utf8").trim();
+    if (teamsCache && teamsCache !== cache) {
+      console.warn("Outlook not authenticated — retrying with teams cache");
+      const retry = await fetchJson(`${APP_URL}/auth/microsoft/bridge`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cache: teamsCache, mcpName: MCP_NAME }),
+      });
+      console.log("Retry response:", JSON.stringify(retry, null, 2));
+    }
+  }
+
   await checkStatus();
 }
 

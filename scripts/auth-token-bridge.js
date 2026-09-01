@@ -55,14 +55,27 @@ async function checkStatus() {
   return status;
 }
 
-async function uploadMsal(mcpName, cacheFile) {
+function readMsalCache(cacheFile) {
   if (!fs.existsSync(cacheFile)) {
-    console.warn(`Skip ${mcpName}: no file at ${cacheFile}`);
-    return;
+    return null;
   }
   const cache = fs.readFileSync(cacheFile, "utf8").trim();
+  return cache || null;
+}
+
+async function uploadMsal(mcpName, cacheFile) {
+  let cache = readMsalCache(cacheFile);
+  if (!cache && mcpName === "outlook") {
+    const teamsFile = MSAL_TARGETS.teams;
+    cache = readMsalCache(teamsFile);
+    if (cache) {
+      console.warn(
+        `Outlook cache missing/stale — using teams token cache for Mail.Read scopes`
+      );
+    }
+  }
   if (!cache) {
-    console.warn(`Skip ${mcpName}: empty cache file`);
+    console.warn(`Skip ${mcpName}: no token cache at ${cacheFile}`);
     return;
   }
   console.log(`Uploading ${mcpName} → /auth/microsoft/bridge`);
@@ -75,6 +88,21 @@ async function uploadMsal(mcpName, cacheFile) {
     body: JSON.stringify({ cache, mcpName }),
   });
   console.log(result);
+  if (mcpName === "outlook" && result.ok && !result.outlook) {
+    const teamsCache = readMsalCache(MSAL_TARGETS.teams);
+    if (teamsCache && teamsCache !== cache) {
+      console.warn("Outlook bridge did not authenticate — retrying with teams cache");
+      const retry = await fetchJson(`${APP_URL}/auth/microsoft/bridge`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cache: teamsCache, mcpName }),
+      });
+      console.log(retry);
+    }
+  }
 }
 
 async function uploadGmail() {
