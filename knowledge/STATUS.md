@@ -50,11 +50,13 @@
 - [x] Added `docs/api-spec.md` with full request/response examples
 - [x] Automated test suite: 12 tests passing across `core` and `api`
 - [x] **Gmail Token Bridge**: `POST /auth/gmail/bridge` + `scripts/auth-gmail-bridge.js` / `.ps1` (`npm run auth:gmail:bridge`)
-- [x] `packages/core/gmail` wrapper for Postgres/disk credentials + `packages/shared` OAuth2 token helpers
 - [x] **PM Tool Proxy & Cloud MCP**:
   - Added `packages/core/pmtool` (`listMyTasks`, `getTask`, `searchTasks`)
   - Exposed MCP tools: `list_my_tasks`, `get_task`, `search_tasks` (now 9 total tools in `@prabu-life-os/mcp`)
   - Mounted proxy routes under `/api/pm` (`/api/pm/health`, `/api/pm/tasks`, `/api/pm/tasks/:id`, `/api/pm/search`)
+- [x] **Multi-Agent Tooling & Workflow Documentation**:
+  - Created `knowledge/TOOLING.md` (Antigravity, Grok CLI, Cursor PM guidelines + quota fallback)
+  - Created `knowledge/prompts/ANTIGRAVITY-PHASE-4.md` for reusable Phase 4 REST API prompts
 
 ---
 

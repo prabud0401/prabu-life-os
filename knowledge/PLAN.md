@@ -17,7 +17,7 @@
 - [x] **1.2** Copy/adapt `blueocean_mcp/shared` auth + Graph client
 - [x] **1.3** Port Outlook tools (list, search, get, folders)
 - [ ] **1.4** Port Teams tools (list_teams, channels, messages, chats) [Deferred by PM]
-- [ ] **1.5** Add Gmail-local tools wrapper in `core/gmail`
+- [x] **1.5** Add Gmail tools wrapper in `core/gmail` & OAuth token bridge
 - [x] **1.6** `packages/core/finance` — parse Wise email, dedup, Notion write
 - [x] **1.7** MCP tools: `sync_salary_to_notion`, `get_income_summary`
 - [x] **1.8** `config/default.json` with Notion IDs (no secrets)

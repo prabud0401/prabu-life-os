@@ -105,6 +105,14 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/pm-tool-proxy`
 - **Agent**: Antigravity
 
+- **Added** Multi-Agent Tooling & Workflow Documentation
+  - Created `knowledge/TOOLING.md`: agent responsibilities (Antigravity, Grok CLI, Cursor PM), MCP configuration, and fallback handling when hitting quotas
+  - Created `knowledge/prompts/ANTIGRAVITY-PHASE-4.md`: standardized Phase 4 REST API agent prompt
+  - Updated `knowledge/PLAN.md` checkboxes and phase statuses
+  - Updated `knowledge/STATUS.md` with Phase 3/4 completions and metrics
+- **Branch**: `feature/tooling-docs`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries
