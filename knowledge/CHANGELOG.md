@@ -113,6 +113,16 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/tooling-docs`
 - **Agent**: Antigravity
 
+- **Implemented** HNB/BOC PDF Parsers, Outlook Finance Sync & Mobile Push Notifications
+  - Created `packages/core/src/finance-engine/parsers/pdf.ts`: PDF bank statement parser for HNB (default password `028020612034`) and BOC (default password `7861`), with text extraction, date & debit/credit normalization, classification, and ledger persistence.
+  - Created `packages/core/src/finance-engine/sync-outlook.ts`: Outlook Graph API synchronization searching People's Pay bill payments, card payments, and fund transfers.
+  - Created `packages/core/src/notifications/push.ts` & `migrations/003_mobile_device_tokens.sql`: Mobile push notification system via Expo Push API with device token registry and automatic alerts on salary inflow, large debits, and broker payouts.
+  - Exposed MCP tools: `ingest_bank_statement_pdf` and `sync_finance_emails_from_outlook` (now 31 tools total across MCP server).
+  - Added REST API routes in `packages/api/src/routes/finance-intelligence.ts`: `POST /ingest/pdf`, `POST /sync/outlook`, `POST /notify`, `POST /devices/register`, `POST /devices/unregister`.
+  - Created `knowledge/MOBILE-PUSH.md` setup guide and added unit tests in `packages/core/test/pdf-parser.test.js` (23 total tests passing).
+- **Branch**: `feature/finance-intelligence-enhancements`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries

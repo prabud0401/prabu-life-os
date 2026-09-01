@@ -7,4 +7,6 @@ export * from "./scenarios";
 export * from "./report";
 export * from "./parsers/email";
 export * from "./parsers/sms";
+export * from "./parsers/pdf";
 export * from "./sync-gmail";
+export * from "./sync-outlook";

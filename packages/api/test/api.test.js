@@ -83,6 +83,44 @@ describe("REST API Endpoints", () => {
     assert.equal(data.service, "pm-tool-proxy");
   });
 
+  it("POST /api/finance/intelligence/ingest/pdf ingests raw statement text", async () => {
+    const sampleText = `
+HATTON NATIONAL BANK
+15/09/2025 SALARY INWARD 84,237.81 150,000.00
+`;
+    const res = await fetch(`${baseUrl}/api/finance/intelligence/ingest/pdf`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${testApiKey}`,
+      },
+      body: JSON.stringify({ rawText: sampleText, bank: "HNB" }),
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.ok(data.parsed);
+    assert.equal(data.parsed.length, 1);
+    assert.equal(data.parsed[0].amountLkr, 84237.81);
+  });
+
+  it("POST /api/finance/intelligence/devices/register registers device token", async () => {
+    const res = await fetch(`${baseUrl}/api/finance/intelligence/devices/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${testApiKey}`,
+      },
+      body: JSON.stringify({
+        deviceToken: "ExponentPushToken[api-test-token]",
+        platform: "ios",
+        deviceName: "iPhone 15",
+      }),
+    });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.ok, true);
+  });
+
   it("Protected routes reject unauthorized requests", async () => {
     const res = await fetch(`${baseUrl}/api/transactions`);
     assert.equal(res.status, 401);

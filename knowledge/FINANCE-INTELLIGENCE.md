@@ -36,20 +36,29 @@ People's Bank (savings, wallet, credit card), HNB, BOC, Commercial Bank, Wise US
 | `run_financial_reconciliation` | Full report + base/happy/worst scenarios |
 | `ingest_sms_alert` | Parse bank SMS deposit |
 | `ingest_finance_email` | Parse bill/card/transfer emails |
+| `ingest_bank_statement_pdf` | Parse encrypted/plain HNB/BOC statement PDF (HNB: 028020612034, BOC: 7861) |
 | `classify_transaction` | Classify a single transaction |
 | `list_registered_accounts` | Account directory |
+| `sync_finance_emails_from_gmail` | Batch sync finance emails from Gmail |
+| `sync_finance_emails_from_outlook` | Batch sync finance emails from Outlook |
 
 Use these tools in a **dedicated Gemini custom app** or Grok MCP session with the agent prompt in `knowledge/prompts/FINANCE-INTELLIGENCE-AGENT.md`.
 
 ## REST API (mobile / Tasker)
 
-| Endpoint | Method | Auth |
-|----------|--------|------|
-| `/api/finance/intelligence/report` | GET | JWT or API key |
-| `/api/finance/intelligence/ingest/sms` | POST | JWT or API key |
-| `/api/finance/intelligence/ingest/email` | POST | JWT or API key |
-| `/api/finance/intelligence/classify` | POST | JWT or API key |
-| `/api/finance/intelligence/accounts` | GET | JWT or API key |
+| Endpoint | Method | Auth | Purpose |
+|----------|--------|------|---------|
+| `/api/finance/intelligence/report` | GET | JWT or API key | Reconciliation report + scenarios |
+| `/api/finance/intelligence/ingest/sms` | POST | JWT or API key | Tasker SMS alert target |
+| `/api/finance/intelligence/ingest/email` | POST | JWT or API key | Email transaction ingest |
+| `/api/finance/intelligence/ingest/pdf` | POST | JWT or API key | Base64 / raw PDF statement ingest |
+| `/api/finance/intelligence/classify` | POST | JWT or API key | Classify description + amounts |
+| `/api/finance/intelligence/accounts` | GET | JWT or API key | Directory of registered accounts |
+| `/api/finance/intelligence/sync/gmail` | POST | JWT or API key | Batch Gmail finance sync |
+| `/api/finance/intelligence/sync/outlook` | POST | JWT or API key | Batch Outlook finance sync |
+| `/api/finance/intelligence/notify` | POST | JWT or API key | Push notification dispatcher |
+| `/api/finance/intelligence/devices/register` | POST | JWT or API key | Register Expo push token |
+| `/api/finance/intelligence/devices/unregister` | POST | JWT or API key | Remove Expo push token |
 
 ### Tasker webhook example
 
@@ -63,21 +72,21 @@ Content-Type: application/json
 
 ## Database
 
-Run migration: `migrations/002_financial_transactions.sql`
-
-```powershell
-# Railway Postgres console, or:
-node scripts/run-migration.js 002_financial_transactions.sql
-```
+Run migrations in order:
+1. `migrations/001_initial.sql` (OAuth tokens & sync log)
+2. `migrations/002_financial_transactions.sql` (Ledger table)
+3. `migrations/003_mobile_device_tokens.sql` (Expo push device tokens)
 
 ## Data ingestion roadmap
 
 | Source | Status | Method |
 |--------|--------|--------|
 | Wise salary (Outlook) | ✅ | Existing `sync_salary_to_notion` + engine merges Notion totals |
-| Gmail bank emails | ✅ | `ingest_finance_email` + Gmail MCP search |
+| Gmail bank emails | ✅ | `ingest_finance_email` + `sync_finance_emails_from_gmail` |
+| Outlook bank emails | ✅ | `sync_finance_emails_from_outlook` |
 | SMS alerts | ✅ | Tasker → `/ingest/sms` |
-| HNB/BOC PDF statements | 🔜 | PDF parser + Drive batch |
+| HNB/BOC PDF statements | ✅ | PDF parser (`pdf.ts`) + `ingest_bank_statement_pdf` |
+| Mobile push alerts | ✅ | Expo Push API + `/notify` + automatic triggers |
 | Mobile app | 🔜 | Phase 5 REST client |
 
 ## Gmail re-auth reminder

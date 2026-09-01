@@ -1,11 +1,13 @@
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import {
   classifyTransaction,
+  ingestBankStatementPdf,
   ingestEmailNotification,
   ingestSmsAlert,
   REGISTERED_ACCOUNTS,
   runFinancialReconciliation,
   syncFinanceEmailsFromGmail,
+  syncFinanceEmailsFromOutlook,
 } from "@prabu-life-os/core";
 
 export const runFinancialReconciliationTool: Tool = {
@@ -56,6 +58,35 @@ export const ingestFinanceEmailTool: Tool = {
   },
 };
 
+export const ingestBankStatementPdfTool: Tool = {
+  name: "ingest_bank_statement_pdf",
+  description:
+    "Parse and store an encrypted or plain bank statement PDF (HNB, BOC, People's Bank, Commercial Bank). Auto-uses known default passwords (HNB: 028020612034, BOC: 7861).",
+  inputSchema: {
+    type: "object",
+    required: ["base64Pdf"],
+    properties: {
+      base64Pdf: {
+        type: "string",
+        description: "Base64 encoded string of the bank statement PDF file",
+      },
+      bank: {
+        type: "string",
+        enum: ["HNB", "BOC", "PEOPLESBANK", "COMMERCIAL", "AUTO"],
+        description: "Bank identifier (default: AUTO)",
+      },
+      password: {
+        type: "string",
+        description: "Optional custom password if different from default account password",
+      },
+      accountId: {
+        type: "string",
+        description: "Optional account number override",
+      },
+    },
+  },
+};
+
 export const classifyTransactionTool: Tool = {
   name: "classify_transaction",
   description:
@@ -94,13 +125,28 @@ export const syncFinanceEmailsFromGmailTool: Tool = {
   },
 };
 
+export const syncFinanceEmailsFromOutlookTool: Tool = {
+  name: "sync_finance_emails_from_outlook",
+  description:
+    "Search Outlook for People's Pay bill payments, card payments, fund transfers, and Wise salary emails; parse and store them in the financial intelligence ledger.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      maxPerQuery: { type: "number", description: "Max messages per search query (default 15)" },
+      since: { type: "string", description: "Only emails after YYYY-MM-DD" },
+    },
+  },
+};
+
 export const financeIntelligenceTools: Tool[] = [
   runFinancialReconciliationTool,
   ingestSmsAlertTool,
   ingestFinanceEmailTool,
+  ingestBankStatementPdfTool,
   classifyTransactionTool,
   listRegisteredAccountsTool,
   syncFinanceEmailsFromGmailTool,
+  syncFinanceEmailsFromOutlookTool,
 ];
 
 export async function handleFinanceIntelligenceTool(
@@ -135,6 +181,15 @@ export async function handleFinanceIntelligenceTool(
         });
         return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
       }
+      case "ingest_bank_statement_pdf": {
+        const result = await ingestBankStatementPdf({
+          base64Pdf: args.base64Pdf as string,
+          bank: args.bank as any,
+          password: args.password as string | undefined,
+          accountId: args.accountId as string | undefined,
+        });
+        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      }
       case "classify_transaction": {
         const tx = classifyTransaction({
           description: args.description as string,
@@ -154,6 +209,14 @@ export async function handleFinanceIntelligenceTool(
       }
       case "sync_finance_emails_from_gmail": {
         const result = await syncFinanceEmailsFromGmail({
+          maxPerQuery:
+            args.maxPerQuery !== undefined ? Number(args.maxPerQuery) : undefined,
+          since: args.since as string | undefined,
+        });
+        return { content: [{ type: "text", text: JSON.stringify(result, null, 2) }] };
+      }
+      case "sync_finance_emails_from_outlook": {
+        const result = await syncFinanceEmailsFromOutlook({
           maxPerQuery:
             args.maxPerQuery !== undefined ? Number(args.maxPerQuery) : undefined,
           since: args.since as string | undefined,

@@ -1,12 +1,17 @@
 import { Router, type Response } from "express";
 import {
   classifyTransaction,
+  ingestBankStatementPdf,
   ingestEmailNotification,
   ingestSmsAlert,
   listTransactions,
   REGISTERED_ACCOUNTS,
+  registerDeviceToken,
+  unregisterDeviceToken,
+  sendExpoPushNotification,
   runFinancialReconciliation,
   syncFinanceEmailsFromGmail,
+  syncFinanceEmailsFromOutlook,
 } from "@prabu-life-os/core";
 import { requireAuth, type AuthenticatedRequest } from "../middleware/auth";
 
@@ -57,6 +62,30 @@ financeIntelligenceRouter.post("/ingest/email", async (req: AuthenticatedRequest
       body,
       receivedAt,
       messageId,
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/**
+ * POST /api/finance/intelligence/ingest/pdf
+ * Ingest Base64 encoded or raw text PDF bank statement
+ */
+financeIntelligenceRouter.post("/ingest/pdf", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { base64Pdf, rawText, bank, password, accountId } = req.body || {};
+    if (!base64Pdf && !rawText) {
+      res.status(400).json({ error: "base64Pdf or rawText is required" });
+      return;
+    }
+    const result = await ingestBankStatementPdf({
+      base64Pdf,
+      rawText,
+      bank,
+      password,
+      accountId,
     });
     res.json(result);
   } catch (err) {
@@ -128,3 +157,79 @@ financeIntelligenceRouter.post("/sync/gmail", async (req: AuthenticatedRequest, 
     res.status(500).json({ error: (err as Error).message });
   }
 });
+
+/**
+ * POST /api/finance/intelligence/sync/outlook
+ * Pull bill/card/transfer emails from Outlook into the ledger
+ */
+financeIntelligenceRouter.post("/sync/outlook", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { maxPerQuery, since } = req.body || {};
+    const result = await syncFinanceEmailsFromOutlook({
+      maxPerQuery: typeof maxPerQuery === "number" ? maxPerQuery : undefined,
+      since: typeof since === "string" ? since : undefined,
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/**
+ * POST /api/finance/intelligence/notify
+ * Trigger push notification to mobile devices
+ */
+financeIntelligenceRouter.post("/notify", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { title, body, data, tokens } = req.body || {};
+    if (!title || !body) {
+      res.status(400).json({ error: "title and body are required" });
+      return;
+    }
+    const result = await sendExpoPushNotification({
+      title,
+      body,
+      data,
+      tokens,
+    });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/**
+ * POST /api/finance/intelligence/devices/register
+ * Register an Expo device push token
+ */
+financeIntelligenceRouter.post("/devices/register", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { deviceToken, platform, deviceName } = req.body || {};
+    if (!deviceToken) {
+      res.status(400).json({ error: "deviceToken is required" });
+      return;
+    }
+    await registerDeviceToken({ deviceToken, platform, deviceName });
+    res.json({ ok: true, deviceToken, platform });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+
+/**
+ * POST /api/finance/intelligence/devices/unregister
+ */
+financeIntelligenceRouter.post("/devices/unregister", async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const { deviceToken } = req.body || {};
+    if (!deviceToken) {
+      res.status(400).json({ error: "deviceToken is required" });
+      return;
+    }
+    await unregisterDeviceToken(deviceToken);
+    res.json({ ok: true, deviceToken });
+  } catch (err) {
+    res.status(500).json({ error: (err as Error).message });
+  }
+});
+

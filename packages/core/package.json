@@ -8,14 +8,15 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "npm run build && node --test test/parser.test.js test/finance-engine.test.js"
+    "test": "npm run build && node --test test/parser.test.js test/finance-engine.test.js test/pdf-parser.test.js"
   },
   "dependencies": {
     "@microsoft/microsoft-graph-client": "^3.0.7",
     "@prabu-life-os/shared": "*",
     "dotenv": "^16.4.5",
     "googleapis": "^144.0.0",
-    "isomorphic-fetch": "^3.0.0"
+    "isomorphic-fetch": "^3.0.0",
+    "pdfjs-dist": "^4.10.38"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

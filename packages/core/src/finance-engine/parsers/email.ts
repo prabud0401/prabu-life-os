@@ -7,8 +7,11 @@ function parseAmount(text: string, pattern: RegExp): number | null {
   return parseFloat(match[1].replace(/,/g, ""));
 }
 
-function todayFromInput(receivedAt?: string): string {
-  if (receivedAt) return receivedAt.split("T")[0];
+function parseToIsoDate(value?: string): string {
+  if (!value?.trim()) return new Date().toISOString().split("T")[0];
+  if (/^\d{4}-\d{2}-\d{2}/.test(value)) return value.split("T")[0];
+  const parsed = new Date(value);
+  if (!Number.isNaN(parsed.getTime())) return parsed.toISOString().split("T")[0];
   return new Date().toISOString().split("T")[0];
 }
 
@@ -16,7 +19,7 @@ export function parseEmailNotification(input: EmailIngestInput): FinancialTransa
   const body = input.body || "";
   const subject = input.subject || "";
   const from = input.from || "";
-  const date = todayFromInput(input.receivedAt);
+  const date = parseToIsoDate(input.receivedAt);
   const baseMeta = { subject, from, messageId: input.messageId };
   const results: FinancialTransaction[] = [];
 

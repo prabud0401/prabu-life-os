@@ -27,6 +27,9 @@
 - [x] **Auto-migration** — `financial_transactions` table on server startup
 - [x] **Gmail finance sync** — `POST /api/finance/intelligence/sync/gmail` + MCP tool
 - [x] **Ledger API** — `GET /api/finance/intelligence/transactions`
+- [x] **Bank statement PDF parsers** — `packages/core/src/finance-engine/parsers/pdf.ts` (HNB: 028020612034, BOC: 7861) + MCP tool `ingest_bank_statement_pdf`
+- [x] **Outlook People's Pay email sync** — `packages/core/src/finance-engine/sync-outlook.ts` + MCP tool `sync_finance_emails_from_outlook` + `POST /api/finance/intelligence/sync/outlook`
+- [x] **Mobile Push Notifications** — `packages/core/src/notifications/push.ts` + `migrations/003_mobile_device_tokens.sql` + `POST /notify` & `/devices/register` + `knowledge/MOBILE-PUSH.md`
 
 ---
 
@@ -34,10 +37,10 @@
 
 | Component | Status |
 |-----------|--------|
-| Railway MCP (`/sse`, `/mcp`) | ✅ 29 tools |
-| REST API | ✅ Finance + Intelligence + PM |
+| Railway MCP (`/sse`, `/mcp`) | ✅ 31 tools |
+| REST API | ✅ Finance + Intelligence + PM + Mobile Push |
 | Notion salary sync | ✅ 31 transfers |
-| Finance Intelligence ledger | ✅ Postgres + ingest |
+| Finance Intelligence ledger | ✅ Postgres + Email/SMS/PDF ingest |
 | Mobile app | 🔄 Antigravity building |
 
 ---
@@ -46,15 +49,16 @@
 
 | Metric | Current |
 |--------|---------|
-| MCP tools | 29 (outlook, teams, gmail, finance, intelligence, pmtool) |
+| MCP tools | 31 (outlook, teams, gmail, finance, intelligence, pmtool) |
 | Income (Notion) | $8,490.73 / 2,648,425.18 LKR |
-| Tests | 16 passing (core + api) |
+| Tests | 23 passing (core + api) |
 | Production URL | https://prabu-life-os-production.up.railway.app |
 
 ---
 
-## Cursor next (while Antigravity works)
+## Cursor / Antigravity next
 
-- [ ] HNB/BOC PDF statement parsers
-- [ ] Outlook People's Pay email auto-sync (parallel to Gmail)
-- [ ] Push notifications webhook for mobile
+- [x] HNB/BOC PDF statement parsers
+- [x] Outlook People's Pay email auto-sync (parallel to Gmail)
+- [x] Push notifications webhook for mobile
+- [ ] Connect mobile client (`prabu-life-os-mobile`) to `/api/finance/intelligence/*`

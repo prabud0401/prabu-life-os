@@ -40,7 +40,8 @@ export function classifyDescription(input: {
   if (
     (input.subject?.includes("Transfer sent") && from.includes("blueoceansp")) ||
     from.includes("wise.com") ||
-    text.includes("wise transfer")
+    text.includes("wise transfer") ||
+    (input.direction === "credit" && (text.includes("salary") || text.includes("wise")))
   ) {
     return { transactionType: "SALARY_INFLOW", category: "Salary" };
   }
@@ -62,7 +63,7 @@ export function classifyDescription(input: {
   }
 
   if (
-    input.subject?.includes("Fund transfer") &&
+    input.direction === "debit" &&
     (BROKER_OUTWARD_KEYWORDS.some((k) => text.includes(k)) || text.includes("broker"))
   ) {
     return { transactionType: "BROKER_OUTWARD", category: "Broker Disbursement" };
