@@ -22,12 +22,14 @@
 |----------|------|--------|
 | Name | title | e.g. `Salary — Wise #2339987406` |
 | Date | date | ISO date |
-| Amount | number | Must match Currency |
+| Amount | number | USD amount (must match Currency) |
+| Amount LKR | number | LKR received |
+| Transfer ID | text | Wise transfer number (dedup key) |
 | Currency | select | USD, LKR |
 | Type | select | Income, Expense |
 | Category | select | Salary, Bonus, Other |
 | Source | select | Gmail, Outlook, Manual |
-| Notes | text | LKR amount, Transfer ID, email ref |
+| Notes | text | Rate, email ref, extra context |
 
 ## Row template (MCP)
 
@@ -42,6 +44,8 @@
       "Source": "Outlook",
       "Amount": 260.18,
       "Currency": "USD",
+      "Amount LKR": 84237.81,
+      "Transfer ID": "2339987406",
       "date:Date:start": "2026-08-30",
       "date:Date:is_datetime": 0,
       "Notes": "LKR 84,237.81. Transfer #2339987406. Barath FW."
@@ -52,7 +56,17 @@
 
 ## Deduplication
 
-Before insert: search Notion for Transfer ID in Notes or Name. Skip if exists.
+Before insert: check `Transfer ID` property (fallback: parse from Name/Notes). Skip if exists.
+
+## Repair / backfill
+
+```powershell
+cd C:\Users\prabu\Desktop\prabu-life-os
+node scripts/repair-notion-rows.js          # live repair
+node scripts/repair-notion-rows.js --dry-run
+```
+
+Fixes legacy rows (wrong Currency), backfills `Amount LKR` and `Transfer ID` from Outlook canonical data.
 
 ## Auth
 

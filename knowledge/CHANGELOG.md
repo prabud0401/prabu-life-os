@@ -43,6 +43,16 @@ All notable changes to this project. Format: date — summary — agent/tool.
   - Added `prabu-life-os` server to `.grok/config.toml`
 - **Agent**: Cursor PM
 
+- **Completed** Phase 2: Notion polish, schema expansion, and data repair
+  - Added Notion columns: `Transfer ID`, `Amount LKR`
+  - Updated Notion client to read/write new fields + batch update support
+  - Added `repairNotionTransactions()`, `getMonthlyIncomeSummary()`, finance mapper module
+  - Repaired all 31 Notion rows: 0 wrong Currency, 0 missing Amount LKR
+  - Verified totals from Notion: $8,490.73 USD / 2,648,425.18 LKR
+  - Added parser unit tests (5 passing) and `scripts/repair-notion-rows.js`
+- **Branch**: `feature/phase-2-polish`
+- **Agent**: Cursor PM
+
 ---
 
 ## Template for new entries

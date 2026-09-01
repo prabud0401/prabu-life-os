@@ -34,10 +34,11 @@
 
 ## Phase 2 — Polish & Notion (week 3)
 
-- [ ] Expand Notion DB fields (Transfer ID column if API allows)
-- [ ] Monthly summary helper in `core/finance`
-- [ ] Error handling + logging
-- [ ] Unit tests for Wise email parser
+- [x] Expand Notion DB fields (`Transfer ID`, `Amount LKR`)
+- [x] Backfill + repair legacy rows (Currency/LKR/Transfer ID)
+- [x] Monthly summary helper (`getMonthlyIncomeSummary`)
+- [x] Error handling + logging (`logger` in Notion sync/repair)
+- [x] Unit tests for Wise email parser
 
 ---
 
@@ -72,7 +73,7 @@
 
 ## Current phase
 
-**Phase 1** — not started (repo scaffold pending)
+**Phase 2** — complete (merged pending)
 
 ## PM checkpoints
 

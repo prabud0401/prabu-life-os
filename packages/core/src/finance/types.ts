@@ -50,3 +50,16 @@ export interface IncomeSummary {
   lastTransferDate?: string;
   monthlyBreakdown: MonthlyBreakdown[];
 }
+
+export interface RepairNotionOptions {
+  dryRun?: boolean;
+}
+
+export interface RepairNotionResult {
+  totalPages: number;
+  matchedPages: number;
+  repairedCount: number;
+  skippedCount: number;
+  dryRun: boolean;
+  errors: string[];
+}
