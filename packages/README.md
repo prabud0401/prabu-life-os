@@ -4,9 +4,9 @@ Code lives here starting Phase 1.
 
 | Package | Status |
 |---------|--------|
-| `shared/` | Pending — Antigravity Phase 1.2 |
-| `core/` | Pending — Phase 1.3+ |
-| `mcp/` | Pending — Phase 1.3 |
-| `api/` | Phase 4 |
+| `shared/` | Active — Phase 1.2 Auth, KeyVault, Graph client, OAuth2 |
+| `core/` | Active — Phase 1.3 Outlook services & stubs |
+| `mcp/` | Active — Phase 1.3 MCP Server & Outlook tools |
+| `api/` | Pending — Phase 4 |
 
 See `knowledge/PLAN.md`.

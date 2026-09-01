@@ -1,0 +1,22 @@
+{
+  "name": "@prabu-life-os/core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Core business logic for Prabu Life OS (Outlook, Teams, Gmail, Finance, Notion)",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@prabu-life-os/shared": "*",
+    "dotenv": "^16.4.5",
+    "isomorphic-fetch": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0"
+  }
+}
