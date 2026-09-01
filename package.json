@@ -7,11 +7,13 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @prabu-life-os/shared && npm run build -w @prabu-life-os/core && npm run build -w @prabu-life-os/mcp",
+    "build": "npm run build -w @prabu-life-os/shared && npm run build -w @prabu-life-os/core && npm run build -w @prabu-life-os/api && npm run build -w @prabu-life-os/mcp",
     "build:shared": "npm run build -w @prabu-life-os/shared",
     "build:core": "npm run build -w @prabu-life-os/core",
+    "build:api": "npm run build -w @prabu-life-os/api",
     "build:mcp": "npm run build -w @prabu-life-os/mcp",
-    "test": "npm run test -w @prabu-life-os/core",
+    "test": "npm run test -w @prabu-life-os/core && npm run test -w @prabu-life-os/api",
+    "start:api": "npm run start -w @prabu-life-os/api",
     "start:mcp": "npm run start -w @prabu-life-os/mcp",
     "auth:outlook": "npm run auth:outlook -w @prabu-life-os/mcp",
     "auth:outlook:bridge": "node scripts/auth-outlook-bridge.js"

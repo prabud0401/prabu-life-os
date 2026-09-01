@@ -64,10 +64,11 @@ See **`knowledge/RAILWAY.md`** for step-by-step Railway setup and bridge auth.
 
 ## Phase 4 — REST API (weeks 6–7)
 
-- [ ] `packages/api` — Express/Fastify
-- [ ] JWT auth
-- [ ] Endpoints: `/finance/summary`, `/finance/sync`, `/transactions`
-- [ ] `docs/api-spec.md`
+- [x] `packages/api` — Express REST controllers and routes
+- [x] JWT auth — `POST /api/auth/token` + flexible Bearer / API key auth middleware
+- [x] Endpoints: `/api/finance/summary`, `/api/finance/sync`, `/api/transactions`, `/api/health`
+- [x] Unified mounting on `/api` in `packages/mcp` http-server + standalone `start:api` runner
+- [x] `docs/api-spec.md` with full request/response examples and curl commands
 
 ---
 
@@ -81,7 +82,7 @@ See **`knowledge/RAILWAY.md`** for step-by-step Railway setup and bridge auth.
 
 ## Current phase
 
-**Current phase**: Phase 3 completed — ready for Phase 4 REST API / Phase 1.4 Teams / 1.5 Gmail
+**Current phase**: Phase 4 completed — ready for Phase 5 Mobile App / Phase 1.4 Teams / 1.5 Gmail
 
 ## PM checkpoints
 

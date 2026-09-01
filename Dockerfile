@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/core/package.json packages/core/
+COPY packages/api/package.json packages/api/
 COPY packages/mcp/package.json packages/mcp/
 COPY config ./config
 
@@ -21,6 +22,7 @@ ENV PORT=3000
 COPY package.json package-lock.json ./
 COPY packages/shared/package.json packages/shared/
 COPY packages/core/package.json packages/core/
+COPY packages/api/package.json packages/api/
 COPY packages/mcp/package.json packages/mcp/
 COPY config ./config
 
@@ -28,6 +30,7 @@ RUN npm ci --omit=dev
 
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/packages/core/dist packages/core/dist
+COPY --from=build /app/packages/api/dist packages/api/dist
 COPY --from=build /app/packages/mcp/dist packages/mcp/dist
 
 EXPOSE 3000

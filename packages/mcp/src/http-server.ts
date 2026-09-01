@@ -10,6 +10,7 @@ import { logger, pingDatabase } from "@prabu-life-os/shared";
 import { allTools, handleToolCall } from "./tools";
 import { requireApiKey } from "./middleware/api-key";
 import { registerAuthRoutes } from "./routes/auth";
+import { createApiRouter } from "@prabu-life-os/api";
 
 function createServer(): Server {
   const server = new Server(
@@ -45,6 +46,9 @@ export async function startHttpServer(port: number): Promise<void> {
   });
 
   registerAuthRoutes(app);
+
+  // Mount REST API endpoints under /api
+  app.use("/api", createApiRouter());
 
   // Streamable HTTP (Grok, modern MCP clients) — POST/GET /sse
   app.all("/sse", requireApiKey, async (req, res) => {

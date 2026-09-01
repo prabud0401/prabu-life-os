@@ -70,6 +70,21 @@ All notable changes to this project. Format: date — summary — agent/tool.
 - **Branch**: `feature/phase-3-cloud-bridge`
 - **Agent**: Antigravity
 
+- **Implemented** Phase 4: REST API package & JWT authentication
+  - Created `@prabu-life-os/api` workspace with Express REST routes:
+    - `POST /api/auth/token`: Exchanges `PRABU_MCP_API_KEY` for a short-lived JWT (1h expiry)
+    - `GET /api/finance/summary`: Returns aggregated income and monthly metrics from Notion
+    - `POST /api/finance/sync`: Triggers salary sync from Outlook to Notion with deduplication
+    - `GET /api/transactions`: Queries transactions from Notion DB with optional filters & pagination
+    - `GET /api/health`: Health status endpoint returning database and Outlook connectivity
+  - Flexible auth middleware supporting both Bearer JWT and direct API Key
+  - Mounted REST API under `/api` in `packages/mcp` HTTP server for unified Railway deployment
+  - Added standalone `start:api` script and updated root `Dockerfile`
+  - Created `docs/api-spec.md` with complete OpenAPI & curl documentation
+  - Added automated API test suite (11 total tests passing across monorepo)
+- **Branch**: `feature/phase-4-api`
+- **Agent**: Antigravity
+
 ---
 
 ## Template for new entries
